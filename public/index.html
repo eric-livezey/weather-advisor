@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="./styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <section class="layout-content">
+        <header class="global-header_container">
+            <div class="global-header">
+                <div class="global-header__item">
+                    <a class="global-header__logo" href="/"></a>
+                </div>
+                <nav class="global-header__item">
+                    <ul class="global-header__navigation">
+                        <li class="global-header__navigation-item">
+                            <a class="global-header__navigation-link" href="/">Home</a>
+                        </li>
+                        <li class="global-header__navigation-item">
+                            <a class="global-header__navigation-link" href="/">Our Methodology</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <div class="page-content">
+            <h1>Compare the Accuracy of different weather services.</h1>
+            <p>Enter a city or zip code to see the results!</p>
+            <input id="location-input" class="location-input" type="text" placeholder="Enter a city or zip code">
+            <div class="service-list_container">
+                <p><b id="location"></b></p>
+            </div>
+            <script>
+                const input = document.getElementById("location-input");
+                const bold = document.getElementById("location");
+                input.addEventListener("change", async event => {
+                    if (event.target.value) {
+                        if (!input.classList.contains("is-active"))
+                            input.classList.add("is-active");
+                        const address = event.target.value;
+                        const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
+                        const result = await response.json();
+                        bold.innerText = `${result.address || "Invalid Address"}`;
+                    } else if (input.classList.contains("is-active")) {
+                        input.classList.remove("is-active");
+                    }
+                });
+            </script>
+        </div>
+        <footer class="footer">
+            <p>&copy; Weather Advisor 2025</p>
+        </footer>
+    </section>
+</body>
+
+</html>
