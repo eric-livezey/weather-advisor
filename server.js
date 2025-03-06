@@ -1,8 +1,10 @@
 import express from "express";
-import { config } from "./env.js";
 import { geocode } from "./api/geocoding/index.js";
+import { initiateCollection } from "./collect.js";
+import { config } from "./env.js";
 
 config();
+initiateCollection();
 
 const app = express();
 const port = 3000;
