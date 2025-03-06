@@ -42,7 +42,7 @@ const WX_STRING = /<div [^>]*class="[^"]*DetailsSummary--condition[^"]*"[^>]*>((
 const TEMPERATURE = /<div [^>]*class="[^"]*DetailsSummary--temperature[^"]*"[^>]*>((?:(?!<\/div>).)*)<\/div>/g;
 const PRECIPITATION = /<div [^>]*class="[^"]*DetailsSummary--precip[^"]*"[^>]*>((?:(?!<\/div>).)*)<\/div>/g;
 const WIND = /<div [^>]*class="[^"]*DetailsSummary--wind[^"]*"[^>]*>((?:(?!<\/div>).)*)<\/div>/g;
-const NON_TEXT = /<svg[^>]*>(?:(?!<\/svg>).)*<\/svg>|<\/?[a-z\-]+[^>]*>/g;
+const NON_TEXT = /<svg[^>]*>(?:(?!<\/svg>).)*<\/svg>|<\/?[a-z\-]+[^>]*>|\t/g;
 const PROPERTIES = [
     [TIME, "time"],
     [WX_STRING, "wxString"],
@@ -53,7 +53,8 @@ const PROPERTIES = [
 
 async function getHourByHour(placeId) {
     const arr = [];
-    const res = await fetch(`https://weather.com/weather/hourbyhour/l/${placeId}`);
+    const url = new URL(`https://weather.com/weather/hourbyhour/l/${encodeURIComponent(placeId)}`);
+    const res = await fetch(url);
     let html = await res.text();
     html = html.replace(/\r|\n/g, "");
     let match;
