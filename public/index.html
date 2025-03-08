@@ -29,7 +29,7 @@
             <h1>Compare the Accuracy of different weather services.</h1>
             <p>Enter a city or zip code to see the results!</p>
             <input id="location-input" class="location-input" type="text" placeholder="Enter a city or zip code">
-            <div class="service-list_container">
+            <div id="service-list-container" class="service-list_container hidden">
                 <p><b id="location"></b></p>
             </div>
         </div>
@@ -40,16 +40,22 @@
     <script>
         const input = document.getElementById("location-input");
         const bold = document.getElementById("location");
+        const container = document.getElementById("service-list-container");
         input.addEventListener("change", async event => {
             if (event.target.value) {
                 if (!input.classList.contains("is-active"))
                     input.classList.add("is-active");
+                if (container.classList.contains("hidden"))
+                    container.classList.remove("hidden");
                 const address = event.target.value;
                 const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
                 const result = await response.json();
                 bold.innerText = `${result.address || "Invalid Address"}`;
-            } else if (input.classList.contains("is-active")) {
-                input.classList.remove("is-active");
+            } else {
+                if (input.classList.contains("is-active"))
+                    input.classList.remove("is-active");
+                if (!container.classList.contains("hidden"))
+                    container.classList.add("hidden");
             }
         });
     </script>

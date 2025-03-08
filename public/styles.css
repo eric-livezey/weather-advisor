@@ -106,7 +106,6 @@ body {
 }
 
 .service-list_container {
-    opacity: 0;
     border: 1px solid #000;
     margin-block-start: 10rem;
     margin-inline: 5rem;
@@ -115,7 +114,6 @@ body {
     transition: opacity .4s;
 }
 
-.location-input.is-active+.service-list_container {
-    opacity: 1;
-    transition-duration: .2s;
+.hidden {
+    opacity: 0;
 }
