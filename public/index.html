@@ -32,27 +32,27 @@
             <div class="service-list_container">
                 <p><b id="location"></b></p>
             </div>
-            <script>
-                const input = document.getElementById("location-input");
-                const bold = document.getElementById("location");
-                input.addEventListener("change", async event => {
-                    if (event.target.value) {
-                        if (!input.classList.contains("is-active"))
-                            input.classList.add("is-active");
-                        const address = event.target.value;
-                        const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
-                        const result = await response.json();
-                        bold.innerText = `${result.address || "Invalid Address"}`;
-                    } else if (input.classList.contains("is-active")) {
-                        input.classList.remove("is-active");
-                    }
-                });
-            </script>
         </div>
         <footer class="footer">
             <p>&copy; Weather Advisor 2025</p>
         </footer>
     </section>
+    <script>
+        const input = document.getElementById("location-input");
+        const bold = document.getElementById("location");
+        input.addEventListener("change", async event => {
+            if (event.target.value) {
+                if (!input.classList.contains("is-active"))
+                    input.classList.add("is-active");
+                const address = event.target.value;
+                const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
+                const result = await response.json();
+                bold.innerText = `${result.address || "Invalid Address"}`;
+            } else if (input.classList.contains("is-active")) {
+                input.classList.remove("is-active");
+            }
+        });
+    </script>
 </body>
 
 </html>
