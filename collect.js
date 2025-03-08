@@ -7,26 +7,16 @@ import { createConnection } from "mysql";
  * Coordinates sourced from the Google Maps Geocoding API.
  */
 const LOCATIONS = [
-    // New York City, New York
-    [40.7127753, -74.0059728],
-    // Philadelphia, Pennsylvania
-    [39.9525839, -75.1652215],
-    // Hempstead, New York
-    [40.7060923, -73.61876149999999],
-    // Washington, District of Columbia
-    [38.9071923, -77.0368707],
-    // Boston, Massachusetts
-    [42.3555076, -71.0565364],
-    // Baltimore, Maryland
-    [ 39.2905023, -76.6104072 ],
-    // Brookhaven, New York
-    [ 40.7792653, -72.9153827 ],
-    // Virginia Beach, Virginia
-    [ 36.8516437, -75.97921939999999 ],
-    // Islip, New York
-    [ 40.7297786, -73.2105665 ],
-    // Newark, New Jersey
-    [ 40.7315293, -74.1744671 ]
+    { address: "New York City, New York", lat: 40.7127753, lng: -74.0059728 },
+    { address: "Philadelphia, Pennsylvania", lat: 39.9525839, lng: -75.1652215 },
+    { address: "Hempstead, New York", lat: 40.7060923, lng: -73.61876149999999 },
+    { address: "Washington, District of Columbia", lat: 38.9071923, lng: -77.0368707 },
+    { address: "Boston, Massachusetts", lat: 42.3555076, lng: -71.0565364 },
+    { address: "Baltimore, Maryland", lat: 39.2905023, lng: -76.6104072 },
+    { address: "Brookhaven, New York", lat: 40.7792653, lng: -72.9153827 },
+    { address: "Virginia Beach, Virginia", lat: 36.8516437, lng: -75.97921939999999 },
+    { address: "Islip, New York", lat: 40.7297786, lng: -73.2105665 },
+    { address: "Newark, New Jersey", lat: 40.7315293, lng: -74.1744671 }
 ];
 const INTERVAL = 3;
 const DELAY = 15;
