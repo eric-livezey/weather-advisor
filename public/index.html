@@ -43,14 +43,14 @@
         const container = document.getElementById("service-list-container");
         input.addEventListener("change", async event => {
             if (event.target.value) {
-                if (!input.classList.contains("is-active"))
-                    input.classList.add("is-active");
-                if (container.classList.contains("hidden"))
-                    container.classList.remove("hidden");
                 const address = event.target.value;
                 const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
                 const result = await response.json();
                 bold.innerText = `${result.address || "Invalid Address"}`;
+                if (!input.classList.contains("is-active"))
+                    input.classList.add("is-active");
+                if (container.classList.contains("hidden"))
+                    container.classList.remove("hidden");
             } else {
                 if (input.classList.contains("is-active"))
                     input.classList.remove("is-active");
