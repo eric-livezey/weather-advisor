@@ -27,9 +27,10 @@ async function getWeatherForecast(lat, lng, city, postalCode) {
         const details = match[1] || "";
         const obj = {};
         for (const [regex, key] of PROPERTIES) {
-            match = details.match(regex);
+            match = details.match(regex) || [];
             let value = match[0] || "";
             value = value.replaceAll(NON_TEXT, "");
+            value = value.replaceAll("&#xB0;", "\u00b0");
             obj[key] = value;
         }
         arr.push(obj);

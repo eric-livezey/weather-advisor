@@ -4,7 +4,7 @@ import { createConnection } from "mysql";
  * Coordinates of the 10 most populous cities in the northeastern U.S.
  * according to [wikipedia](https://en.wikipedia.org/wiki/Northeast_megalopolis).
  * 
- * Coordinates sourced from Google's geocoding API.
+ * Coordinates sourced from the Google Maps Geocoding API.
  */
 const LOCATIONS = [
     // New York City, New York
@@ -16,7 +16,17 @@ const LOCATIONS = [
     // Washington, District of Columbia
     [38.9071923, -77.0368707],
     // Boston, Massachusetts
-    [42.3555076, -71.0565364]
+    [42.3555076, -71.0565364],
+    // Baltimore, Maryland
+    [ 39.2905023, -76.6104072 ],
+    // Brookhaven, New York
+    [ 40.7792653, -72.9153827 ],
+    // Virginia Beach, Virginia
+    [ 36.8516437, -75.97921939999999 ],
+    // Islip, New York
+    [ 40.7297786, -73.2105665 ],
+    // Newark, New Jersey
+    [ 40.7315293, -74.1744671 ]
 ];
 const INTERVAL = 3;
 const DELAY = 15;

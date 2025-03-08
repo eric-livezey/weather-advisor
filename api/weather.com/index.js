@@ -62,7 +62,7 @@ async function getHourByHour(placeId) {
         const details = match[1] || "";
         const obj = {};
         for (const [regex, key] of PROPERTIES) {
-            match = details.match(regex);
+            match = details.match(regex) || [];
             let value = match[0] || "";
             value = value.replaceAll(NON_TEXT, "");
             obj[key] = value;
