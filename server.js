@@ -9,19 +9,25 @@ initiateCollection();
 const app = express();
 const port = 3000;
 
+app.disable("x-powered-by");
 app.use(express.static("public"));
 
 app.get("/api/forecast/services", async (req, res) => {
     // TODO: Return a list of weather services with a summary of each's accuracy.
-    const address = req.query["address"];
-    if (!address) {
-        res.sendStatus(400);
+    if (req.query.address) {
+        try {
+            const location = await geocode(req.query.address);
+            res.type("json");
+            res.send({
+                address: location.formatted_address,
+                services: []
+            });
+        } catch (e) {
+            console.error(e);
+            res.sendStatus(500);
+        }
     } else {
-        const location = await geocode(address).catch(() => null);
-        res.type("json").send({
-            address: location ? location.formatted_address : null,
-            services: []
-        });
+        res.sendStatus(400);
     }
 });
 

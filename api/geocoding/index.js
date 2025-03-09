@@ -19,7 +19,7 @@ async function geocode(address) {
         // cache as null if the result type is not a valid type
         cache(address, result.types.some(type => VALID_TYPES.includes(type)) ? result : null);
     }
-    return CACHE[address]
+    return CACHE[address];
 }
 
 export {
