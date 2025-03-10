@@ -6,8 +6,9 @@ const BASE_URL = "https://api.msn.com";
 
 async function request(endpoint, params) {
     const url = new URL(BASE_URL + endpoint);
-    for (const [key, value] of Object.entries(params))
+    for (const [key, value] of Object.entries(params)) {
         url.searchParams.append(key, value);
+    }
     url.searchParams.set("apiKey", process.env.MSN_API_KEY);
     const headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
@@ -15,10 +16,11 @@ async function request(endpoint, params) {
         "Referrer": "https://www.msn.com/"
     };
     const res = await fetch(url, { headers });
-    if (res.ok)
+    if (res.ok) {
         return await res.json();
-    else
+    } else {
         throw new Error(`${res.status} ${res.statusText}`);
+    }
 }
 
 async function getWeatherOverview(lat, lng) {

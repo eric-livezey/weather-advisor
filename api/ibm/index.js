@@ -2,14 +2,16 @@ const BASE_URL = "https://api.weather.com/v3/wx";
 
 async function request(endpoint, params) {
     const url = new URL(BASE_URL + endpoint);
-    for (const [key, value] of Object.entries(params))
+    for (const [key, value] of Object.entries(params)) {
         url.searchParams.append(key, value);
+    }
     url.searchParams.set("apiKey", process.env.WEATHER_COMPANY_API_KEY);
     const res = await fetch(url);
-    if (res.ok)
+    if (res.ok) {
         return await res.json();
-    else
+    } else {
         throw new Error(`${res.status} ${res.statusText}`);
+    }
 }
 
 async function getForecastHourly2Day(lat, lng) {

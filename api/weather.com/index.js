@@ -13,10 +13,11 @@ async function request(endpoint, payload) {
         "Content-Type": "application/json"
     };
     const res = await fetch(url, { method: "POST", body: Buffer.from(JSON.stringify(payload)), headers });
-    if (res.ok)
+    if (res.ok) {
         return await res.json();
-    else
+    } else {
         throw new Error(`${res.status} ${res.statusText}`);
+    }
 }
 
 async function getLocation(query) {
