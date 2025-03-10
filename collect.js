@@ -1,36 +1,64 @@
 import { createConnection } from "mysql";
+import { getWeatherForecast } from "./api/accuweather/index.js";
+import { getForecastHourly2Day } from "./api/ibm/index.js";
+import { getWeatherOverview } from "./api/msn/index.js";
+import { ForecastProviderType, insertForecasts } from "./database/database.js";
 
-/** 
- * Coordinates of the 10 most populous cities in the northeastern U.S.
- * according to [wikipedia](https://en.wikipedia.org/wiki/Northeast_megalopolis).
- * 
- * Coordinates sourced from the Google Maps Geocoding API.
- */
-const LOCATIONS = [
-    { address: "New York City, New York", lat: 40.7127753, lng: -74.0059728 },
-    { address: "Philadelphia, Pennsylvania", lat: 39.9525839, lng: -75.1652215 },
-    { address: "Hempstead, New York", lat: 40.7060923, lng: -73.61876149999999 },
-    { address: "Washington, District of Columbia", lat: 38.9071923, lng: -77.0368707 },
-    { address: "Boston, Massachusetts", lat: 42.3555076, lng: -71.0565364 },
-    { address: "Baltimore, Maryland", lat: 39.2905023, lng: -76.6104072 },
-    { address: "Brookhaven, New York", lat: 40.7792653, lng: -72.9153827 },
-    { address: "Virginia Beach, Virginia", lat: 36.8516437, lng: -75.97921939999999 },
-    { address: "Islip, New York", lat: 40.7297786, lng: -73.2105665 },
-    { address: "Newark, New Jersey", lat: 40.7315293, lng: -74.1744671 }
+const PROVIDERS = [
+    {
+        type: ForecastProviderType.IBM,
+        fn: getForecastHourly2Day
+    },
+    {
+        type: ForecastProviderType.MSN,
+        fn: getWeatherOverview
+    },
+    {
+        type: ForecastProviderType.ACCUWEATHER,
+        fn: getWeatherForecast
+    }
 ];
 const INTERVAL = 3;
-const DELAY = 15;
+const DELAY = 1;
 
-async function collectObservations(conn) {
-    const date = new Date();
-    // TODO: Collect observation data and store it in the database
-    console.log(date.toLocaleString() + ":", "COLLECT_OBSERVATION");
+/**
+ * 
+ * @param {import("mysql").Connection} conn 
+ * @param {string|import("mysql").QueryOptions} options 
+ * @returns {Promise<{results:any;fields:FieldInfo[]|undefined}>}
+ */
+function query(conn, options) {
+    return new Promise((resolve, reject) => {
+        conn.query(options, (error, results, fields) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve({ results, fields });
+            }
+        });
+    });
 }
 
-async function collectForecasts(conn) {
+async function collectObservations(conn, locations) {
     const date = new Date();
-    // TODO: Collect forecast data and store it in the database
-    console.log(date.toLocaleString() + ":", "COLLECT_FORECAST");
+    // TODO: Collect observation data and store it in the database
+    console.log(date.toLocaleString() + ":", "COLLECT OBSERVATIONS");
+}
+
+async function collectForecasts(conn, locations, providers) {
+    const date = new Date();
+    console.log(date.toLocaleString() + ":", "COLLECT FORECASTS");
+    for (const location of locations) {
+        for (const provider of providers) {
+            const { x: lat, y: lng } = location.coordinates;
+            try {
+                const data = await provider.fn(lat, lng);
+                await insertForecasts(conn, data, provider.type, location);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
 
 }
 
@@ -38,7 +66,7 @@ async function initiateCollection() {
     // create mysql connection
     const conn = createConnection({
         host: "localhost",
-        user: "admin",
+        user: "root",
         password: process.env.MY_SQL_PASSWORD,
         database: "weather_advisor"
     });
@@ -56,17 +84,17 @@ async function initiateCollection() {
             date.setHours(date.getHours() + 1);
         date.setMinutes(DELAY, 0, 0);
         await new Promise(resolve => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 n++;
-                // connection.connect();
-                collectObservations(conn);
+                conn.connect();
+                const { results: locations } = await query(conn, "SELECT * FROM locations;");
+                await collectObservations(conn, locations, PROVIDERS);
                 // if INTERVAL hours have passed, collect forecasts
                 if (n === INTERVAL) {
-                    collectForecasts(conn);
+                    await collectForecasts(conn, locations, PROVIDERS);
                     n = 0;
                 }
-                // connection.end();
-                resolve();
+                conn.end(() => { resolve() });
             }, date.getTime() - Date.now());
         });
     }
