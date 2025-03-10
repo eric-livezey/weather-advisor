@@ -717,5 +717,6 @@ declare interface WeatherOverviewResponse {
 declare function getWeatherOverview(lat: string | number, lng: string | number): Promise<WeatherOverviewResponse>;
 
 export {
+    WeatherOverviewResponse,
     getWeatherOverview
 };

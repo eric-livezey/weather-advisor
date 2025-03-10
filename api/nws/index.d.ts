@@ -174,6 +174,21 @@ declare function getStationObservationsLatest(stationId: string, params: {
 declare function getStationObservationsTime(stationId: string, time: string): Promise<ObservationCollectionGeoJson>;
 
 export {
+    JsonLdContext,
+    GeoJsonBoundingBox,
+    GeoJsonCoordinate,
+    GeoJsonLineString,
+    GeoJsonPolygon,
+    GeoJsonGeometry,
+    GeoJsonFeature,
+    GeoJsonFeatureCollection,
+    QuantitativeValue,
+    PaginationInfo,
+    ObservationStation,
+    ObservationStationCollectionGeoJson,
+    MetarPhenomenon,
+    Observation,
+    ObservationCollectionGeoJson,
     getStations,
     getAllStations,
     getStationObservations,

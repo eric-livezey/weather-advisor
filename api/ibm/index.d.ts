@@ -144,5 +144,6 @@ declare interface ForecastHourly2Day {
 declare function getForecastHourly2Day(lat: string | number, lng: string | number): Promise<ForecastHourly2Day>;
 
 export {
+    ForecastHourly2Day,
     getForecastHourly2Day
 };
