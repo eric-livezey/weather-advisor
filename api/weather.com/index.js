@@ -1,4 +1,4 @@
-/**
+/*
  * For scraping weather directly from weather.com
  */
 

@@ -34,7 +34,8 @@ app.get("/api/forecast/services", async (req, res) => {
 app.get("/api/forecast/services/:service", (req, res) => {
     // TODO: Return a representation of the accuracy of a particular service
     const service = req.params["service"];
-    res.type("json").send({ service });
+    res.type("json");
+    res.send({ service });
 });
 
 app.listen(port, () => {
