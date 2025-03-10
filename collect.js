@@ -19,7 +19,7 @@ const PROVIDERS = [
     }
 ];
 const INTERVAL = 3;
-const DELAY = 1;
+const DELAY = 15;
 
 /**
  * 
