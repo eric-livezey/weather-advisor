@@ -63,13 +63,6 @@ async function collectForecasts(conn, locations, providers) {
 }
 
 async function initiateCollection() {
-    // create mysql connection
-    const conn = createConnection({
-        host: "localhost",
-        user: "root",
-        password: process.env.MY_SQL_PASSWORD,
-        database: "weather_advisor"
-    });
     // collect every hour
     const now = new Date();
     let n = now.getHours();
@@ -86,8 +79,17 @@ async function initiateCollection() {
         await new Promise(resolve => {
             setTimeout(async () => {
                 n++;
+                // create mysql connection
+                const conn = createConnection({
+                    host: "localhost",
+                    user: "root",
+                    password: process.env.MY_SQL_PASSWORD,
+                    database: "weather_advisor"
+                });
                 conn.connect();
+                // get locations
                 const { results: locations } = await query(conn, "SELECT * FROM locations;");
+                // collect observations
                 await collectObservations(conn, locations, PROVIDERS);
                 // if INTERVAL hours have passed, collect forecasts
                 if (n === INTERVAL) {
