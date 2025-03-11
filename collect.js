@@ -3,6 +3,7 @@ import { getWeatherForecast } from "./api/accuweather/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
 import { ForecastProviderType, insertForecasts } from "./database/database.js";
+import { query } from "./database/database.js";
 
 const PROVIDERS = [
     {
@@ -20,24 +21,6 @@ const PROVIDERS = [
 ];
 const INTERVAL = 3;
 const DELAY = 15;
-
-/**
- * 
- * @param {import("mysql").Connection} conn 
- * @param {string|import("mysql").QueryOptions} options 
- * @returns {Promise<{results:any;fields:FieldInfo[]|undefined}>}
- */
-function query(conn, options) {
-    return new Promise((resolve, reject) => {
-        conn.query(options, (error, results, fields) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ results, fields });
-            }
-        });
-    });
-}
 
 async function collectObservations(conn, locations) {
     const date = new Date();

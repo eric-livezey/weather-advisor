@@ -1,4 +1,4 @@
-import { Connection, FieldInfo, GeometryType } from "mysql";
+import { Connection, FieldInfo, GeometryType, QueryOptions } from "mysql";
 import { ForecastHourly2Day } from "../api/ibm";
 import { WeatherOverviewResponse } from "../api/msn";
 
@@ -24,14 +24,20 @@ declare interface ForecastData {
     };
 }
 
+declare function query(conn: Connection, options: string | QueryOptions): Promise<{
+    results: any;
+    fields?: FieldInfo[];
+}>;
+
 declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, data: ForecastData[T], provider: T, location: Location): Promise<{
     results: any;
-    fields: FieldInfo[] | undefined;
+    fields?: FieldInfo[];
 }>;
 
 export {
-    ForecastData,
     ForecastProviderType,
-    insertForecasts,
-    Location
+    Location,
+    ForecastData,
+    query,
+    insertForecasts
 };

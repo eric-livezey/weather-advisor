@@ -158,5 +158,6 @@ async function insertForecasts(conn, data, provider, location) {
 
 export {
     ForecastProviderType,
+    query,
     insertForecasts
 };
