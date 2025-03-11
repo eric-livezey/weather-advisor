@@ -2,8 +2,7 @@ import { createConnection } from "mysql";
 import { getWeatherForecast } from "./api/accuweather/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
-import { ForecastProviderType, insertForecasts } from "./database/database.js";
-import { query } from "./database/database.js";
+import { ForecastProviderType, insertForecasts, query } from "./database/database.js";
 
 const PROVIDERS = [
     {
