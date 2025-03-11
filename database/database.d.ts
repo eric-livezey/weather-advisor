@@ -1,4 +1,4 @@
-import { Connection, GeometryType, Query } from "mysql";
+import { Connection, FieldInfo, GeometryType } from "mysql";
 import { ForecastHourly2Day } from "../api/ibm";
 import { WeatherOverviewResponse } from "../api/msn";
 
@@ -30,8 +30,8 @@ declare function insertForecasts<T extends ForecastProviderType>(conn: Connectio
 }>;
 
 export {
-    ForecastProviderType,
-    Location,
     ForecastData,
-    insertForecasts
+    ForecastProviderType,
+    insertForecasts,
+    Location
 };
