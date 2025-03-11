@@ -22,10 +22,15 @@ async function getWeatherForecast(lat, lng, city, postalCode) {
     url.searchParams.set("key", `GEO_${lng},${lat}`);
     url.searchParams.set("city", city || "");
     url.searchParams.set("postalCode", postalCode || "");
-    let res = await fetch(url);
+    const headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+        "Origin": "https://www.accuweather.com",
+        "Referrer": "https://www.accuweather.com/"
+    };
+    let res = await fetch(url, { headers });
     // changing the URL like this should give the url to the hourly forecast
     url = res.url.replace("/weather-forecast/", "/hourly-weather-forecast/");
-    res = await fetch(url);
+    res = await fetch(url, { headers });
     let html = await res.text();
     html = html.replace(/\r|\n|\t/g, "");
     let match;
