@@ -24,7 +24,10 @@ declare interface ForecastData {
     };
 }
 
-declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, data: ForecastData[T], provider: T, location: Location): Promise<Query>;
+declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, data: ForecastData[T], provider: T, location: Location): Promise<{
+    results: any;
+    fields: FieldInfo[] | undefined;
+}>;
 
 export {
     ForecastProviderType,
