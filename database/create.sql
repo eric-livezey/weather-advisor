@@ -13,6 +13,7 @@ CREATE TABLE forecasts (
     `hour` SMALLINT NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
     precipitation TINYINT UNSIGNED DEFAULT NULL,
+    wind_speed TINYINT UNSIGNED DEFAULT NULL,
     PRIMARY KEY(`location`, `provider`, `timestamp`, `hour`),
     FOREIGN KEY (`location`) REFERENCES locations(id)
 );

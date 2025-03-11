@@ -1,6 +1,6 @@
 import { format } from "mysql";
 
-const COLUMNS = ["location", "provider", "timestamp", "hour", "temperature", "precipitation"];
+const COLUMNS = ["location", "provider", "timestamp", "hour", "temperature", "precipitation", "wind_speed"];
 
 const ForecastProviderType = {
     IBM: 0,
@@ -39,6 +39,9 @@ const MAPPINGS = {
             },
             precipitation: {
                 key: "precipChance"
+            },
+            wind_speed: {
+                key: "windSpeed"
             }
         }
     },
@@ -56,6 +59,9 @@ const MAPPINGS = {
             },
             precipitation: {
                 key: "precip"
+            },
+            wind_speed: {
+                key: "windSpd"
             }
         }
     },
@@ -90,6 +96,10 @@ const MAPPINGS = {
             },
             precipitation: {
                 key: "precip",
+                convert: val => Number(val.replaceAll(/[^0-9]/g, ""))
+            },
+            wind_speed: {
+                key: "wind",
                 convert: val => Number(val.replaceAll(/[^0-9]/g, ""))
             }
         }
