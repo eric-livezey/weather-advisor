@@ -2,7 +2,26 @@ import { createConnection } from "mysql";
 import { getWeatherForecast } from "./api/accuweather/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
+import { getGridpointForecastHourly, getPoint, getStationObservationsTime, GridpointForecastUnits } from "./api/nws/index.js";
 import { ForecastProviderType, insertForecasts, query } from "./database/database.js";
+
+const INTERVAL = 3;
+const DELAY = 15;
+
+/**
+ * @param {number} lat 
+ * @param {number} lng 
+ * @returns {Promise<import("./api/nws").GridpointForecast>}
+ */
+async function getNwsForecast(lat, lng) {
+    let feature = await getPoint(lat, lng);
+    const point = feature.properties;
+    if (!point.gridId || !point.gridX || !point.gridY) {
+        return {};
+    }
+    feature = await getGridpointForecastHourly(point.gridId, point.gridX, point.gridY, { units: GridpointForecastUnits.US });
+    return feature.properties;
+}
 
 const PROVIDERS = [
     {
@@ -16,32 +35,50 @@ const PROVIDERS = [
     {
         type: ForecastProviderType.ACCUWEATHER,
         fn: getWeatherForecast
+    },
+    {
+        type: ForecastProviderType.NWS,
+        fn: getNwsForecast
     }
 ];
-const INTERVAL = 3;
-const DELAY = 15;
 
-async function collectObservations(conn, locations) {
-    const date = new Date();
-    // TODO: Collect observation data and store it in the database
-    console.log(date.toLocaleString() + ":", "COLLECT OBSERVATIONS");
+async function collectObservations(conn, locations, date) {
+    console.log(new Date().toLocaleString() + ":", "BEGIN COLLECT OBSERVATIONS");
+    for (const location of locations) {
+        const stationId = location.station_id;
+        const { x: lat, y: lng } = location.coordinates;
+        try {
+            // const data = await getStationObservationsTime(stationId, date.toISOString());
+            // await insertObservations(conn, data);
+            // const forecast = await getNwsForecast(lat, lng);
+            // get the forecast for the current hour
+            // const period = forecast.periods.find(p => new Date(Date.parse(p.startTime)).getTime() === date.getTime());
+            // forecast.periods = period ? [period] : [];
+            // await insertForecasts(conn, ForecastProviderType.NWS, forecast, location, date);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    console.log(new Date().toLocaleString() + ":", "END COLLECT OBSERVATIONS");
 }
 
-async function collectForecasts(conn, locations, providers) {
-    const date = new Date();
-    console.log(date.toLocaleString() + ":", "COLLECT FORECASTS");
+async function collectForecasts(conn, locations, date) {
+    console.log(new Date().toLocaleString() + ":", "BEGIN COLLECT FORECASTS");
     for (const location of locations) {
-        for (const provider of providers) {
+        for (const provider of PROVIDERS) {
             const { x: lat, y: lng } = location.coordinates;
             try {
-                const data = await provider.fn(lat, lng);
-                await insertForecasts(conn, data, provider.type, location);
+                // fetch forecasts
+                const data = await provider.fn(lat, lng, location);
+                if (data.find())
+                // insert forecasts
+                await insertForecasts(conn, provider.type, data, location, date);
             } catch (e) {
                 console.error(e);
             }
         }
     }
-
+    console.log(new Date().toLocaleString() + ":", "END COLLECT FORECASTS");
 }
 
 async function initiateCollection() {
@@ -71,11 +108,13 @@ async function initiateCollection() {
                 conn.connect();
                 // get locations
                 const { results: locations } = await query(conn, "SELECT * FROM locations;");
+                date.setMinutes(0, 0, 0);
                 // collect observations
-                await collectObservations(conn, locations, PROVIDERS);
-                // if INTERVAL hours have passed, collect forecasts
+                await collectObservations(conn, locations, date);
+                // if INTERVAL hours have passed
                 if (n === INTERVAL) {
-                    await collectForecasts(conn, locations, PROVIDERS);
+                    // collect forecasts
+                    await collectForecasts(conn, locations, date);
                     n = 0;
                 }
                 conn.end(() => { resolve() });

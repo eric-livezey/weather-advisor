@@ -1,28 +1,30 @@
+import { request } from "../utils.js";
+
 /*
  * For scraping weather directly from msn
  */
 
 const BASE_URL = "https://api.msn.com";
+const BASE_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "Origin": "https://www.msn.com",
+    "Referrer": "https://www.msn.com/"
+};
 
-async function request(endpoint, params) {
-    const url = new URL(BASE_URL + endpoint);
-    for (const [key, value] of Object.entries(params)) {
-        url.searchParams.append(key, value);
-    }
-    url.searchParams.set("apiKey", process.env.MSN_API_KEY);
-    const headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-        "Origin": "https://www.msn.com",
-        "Referrer": "https://www.msn.com/"
-    };
-    const res = await fetch(url, { headers });
-    if (res.ok) {
-        return await res.json();
-    } else {
-        throw new Error(`${res.status} ${res.statusText}`);
-    }
+/**
+ * @param {string} endpoint 
+ * @param {import("../utils").RequestOptions} options 
+ */
+async function requestAPI(endpoint, options) {
+    options = options || {};
+    const params = { apiKey: process.env.MSN_API_KEY, ...options.params };
+    const headers = { ...BASE_HEADERS, ...options.headers }
+    return await request(BASE_URL, endpoint, { params, headers });
 }
 
+/**
+ * @type {import("./index").getWeatherOverview}
+ */
 async function getWeatherOverview(lat, lng) {
     const params = {
         lat,
@@ -34,7 +36,7 @@ async function getWeatherOverview(lat, lng) {
         market: "en-us",
         locale: "en-us"
     };
-    return await request("/weather/overview", params);
+    return await requestAPI("/weather/overview", { params });
 }
 
 export {

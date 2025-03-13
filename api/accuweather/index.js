@@ -15,6 +15,9 @@ const PROPERTIES = [
     [WIND, "wind"]
 ];
 
+/**
+ * @type {import("./index").getWeatherForecast}
+ */
 async function getWeatherForecast(lat, lng, city, postalCode) {
     const arr = [];
     // redirects to the weather overview page

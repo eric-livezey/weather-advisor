@@ -3,8 +3,17 @@ USE weather_advisor;
 CREATE TABLE locations (
     id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL,
     coordinates POINT NOT NULL,
+    station_id VARCHAR(8) NOT NULL,
     `address` VARCHAR(256) NOT NULL,
     PRIMARY KEY(id)
+);
+CREATE TABLE observations (
+    station_id VARCHAR(8) NOT NULL,
+    `timestamp` DATETIME NOT NULL,
+    temperature DECIMAL(5, 2) DEFAULT NULL,
+    precipitation TINYINT UNSIGNED DEFAULT NULL,
+    wind_speed TINYINT UNSIGNED DEFAULT NULL,
+    PRIMARY KEY(station_id, `timestamp`)
 );
 CREATE TABLE forecasts (
     `location` INTEGER UNSIGNED NOT NULL,

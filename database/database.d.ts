@@ -1,43 +1,68 @@
 import { Connection, FieldInfo, GeometryType, QueryOptions } from "mysql";
 import { ForecastHourly2Day } from "../api/ibm";
 import { WeatherOverviewResponse } from "../api/msn";
+import { GridpointForecast } from "../api/nws";
 
 declare enum ForecastProviderType {
-    IBM,
-    MSN,
-    ACCUWEATHER
+    NWS = 0,
+    IBM = 1,
+    MSN = 2,
+    ACCUWEATHER = 3
 }
 
-declare interface Location {
-    id: number;
-    coordinates: GeometryType;
-    address: string;
-}
-
-declare interface ForecastData {
+declare interface ForecastDataTypes {
+    [ForecastProviderType.NWS]: GridpointForecast;
     [ForecastProviderType.IBM]: ForecastHourly2Day;
     [ForecastProviderType.MSN]: WeatherOverviewResponse;
     [ForecastProviderType.ACCUWEATHER]: {
         time: string,
         temp: string,
-        precip: string
-    };
+        precip: string,
+        wind: string
+    }[];
 }
 
-declare function query(conn: Connection, options: string | QueryOptions): Promise<{
-    results: any;
-    fields?: FieldInfo[];
-}>;
+declare interface Location {
+    id: number;
+    coordinates: GeometryType;
+    station_id: string;
+    address: string;
+}
 
-declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, data: ForecastData[T], provider: T, location: Location): Promise<{
-    results: any;
+declare interface Observation {
+    station_id: string;
+    timestamp: Date;
+    temperature: number;
+    precipitation: number;
+    wind_speed: number;
+}
+
+declare interface Forecast {
+    location: number;
+    provider: ForecastProviderType;
+    timestamp: Date;
+    hour: number;
+    temperature: number;
+    precipitation: number;
+    wind_speed: number;
+}
+
+declare interface QueryResponse<T = any> {
+    results: T;
     fields?: FieldInfo[];
-}>;
+}
+
+declare function query(conn: Connection, options: string | QueryOptions): Promise<QueryResponse>;
+
+declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, provider: T, data: ForecastDataTypes[T], location: Location, date: Date): Promise<QueryResponse>;
 
 export {
     ForecastProviderType,
+    ForecastDataTypes,
     Location,
-    ForecastData,
+    Observation,
+    Forecast,
+    QueryResponse,
     query,
     insertForecasts
 };

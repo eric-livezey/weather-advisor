@@ -5,17 +5,17 @@ const LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'
 
 function parse(src) {
     const obj = {};
-    const lines = src.replace(/\r\n?/mg, '\n');
+    const lines = src.replace(/\r\n?/mg, "\n");
     let match;
     while ((match = LINE.exec(lines)) != null) {
         const key = match[1];
-        let value = match[2] || '';
+        let value = match[2] || "";
         value = value.trim();
         const maybeQuote = value[0];
-        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, '$2');
+        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
         if (maybeQuote === '"') {
-            value = value.replace(/\\n/g, '\n');
-            value = value.replace(/\\r/g, '\r');
+            value = value.replace(/\\n/g, "\n");
+            value = value.replace(/\\r/g, "\r");
         }
         obj[key] = value;
     }
