@@ -17,7 +17,8 @@ const BASE_HEADERS = {
  */
 async function requestAPI(endpoint, options) {
     options = options || {};
-    const params = { apiKey: process.env.MSN_API_KEY, ...options.params };
+    const params = new URLSearchParams(options.params);
+    params.set("apiKey", process.env.MSN_API_KEY);
     const headers = { ...BASE_HEADERS, ...options.headers }
     return await request(BASE_URL, endpoint, { params, headers });
 }

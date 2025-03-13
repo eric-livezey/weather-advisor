@@ -153,16 +153,15 @@ const BASE_HEADERS = {
  */
 async function requestAPI(endpoint, options) {
     options = options || {};
-    const params = { ...options.params };
     const headers = { ...BASE_HEADERS, ...options.headers }
-    return await request(BASE_URL, endpoint, { params, headers });
+    return await request(BASE_URL, endpoint, { params: options.params, headers });
 }
 
 /**
  * @type {import("./index").getStations}
  */
 async function getStations(params) {
-    return await requestAPI("/stations", params);
+    return await requestAPI("/stations", { params });
 }
 
 /**

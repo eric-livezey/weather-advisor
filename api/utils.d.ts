@@ -1,6 +1,6 @@
 declare interface RequestOptions {
     method?: string;
-    params?: Record<string, string | number | boolean | string[] | number[] | boolean[]>;
+    params?: string[][] | Record<string, string> | string | URLSearchParams;
     headers?: Record<string, string>;
     body?: ReadableStream;
 }
