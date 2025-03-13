@@ -32,14 +32,14 @@ CREATE TABLE forecasts (
  * 
  * Coordinates sourced from the Google Maps Geocoding API.
  */
-INSERT INTO locations (coordinates, address)
-    VALUES ROW(ST_GeomFromText('POINT(40.7127753 -74.0059728)'), 'New York City, New York'),
-        ROW(ST_GeomFromText('POINT(39.9525839 -75.1652215)'), 'Philadelphia, Pennsylvania'),
-        ROW(ST_GeomFromText('POINT(40.7060923 -73.61876149999999)'), 'Hempstead, New York'),
-        ROW(ST_GeomFromText('POINT(38.9071923 -77.0368707)'), 'Washington, District of Columbia'),
-        ROW(ST_GeomFromText('POINT(42.3555076 -71.0565364)'), 'Boston, Massachusetts'),
-        ROW(ST_GeomFromText('POINT(39.2905023 -76.6104072)'), 'Baltimore, Maryland'),
-        ROW(ST_GeomFromText('POINT(40.7792653 -72.9153827)'), 'Brookhaven, New York'),
-        ROW(ST_GeomFromText('POINT(36.8516437 -75.97921939999999)'), 'Virginia Beach, Virginia'),
-        ROW(ST_GeomFromText('POINT(40.7297786 -73.2105665)'), 'Islip, New York'),
-        ROW(ST_GeomFromText('POINT(40.7315293 -74.1744671)'), 'Newark, New Jersey');
+INSERT INTO locations (coordinates, station_id, address)
+    VALUES ROW(ST_GeomFromText('POINT(40.7127753 -74.0059728)'), '', 'New York City, New York'),
+        ROW(ST_GeomFromText('POINT(39.9525839 -75.1652215)'), '', 'Philadelphia, Pennsylvania'),
+        ROW(ST_GeomFromText('POINT(40.7060923 -73.61876149999999)'), '', 'Hempstead, New York'),
+        ROW(ST_GeomFromText('POINT(38.9071923 -77.0368707)'), '', 'Washington, District of Columbia'),
+        ROW(ST_GeomFromText('POINT(42.3555076 -71.0565364)'), '', 'Boston, Massachusetts'),
+        ROW(ST_GeomFromText('POINT(39.2905023 -76.6104072)'), '', 'Baltimore, Maryland'),
+        ROW(ST_GeomFromText('POINT(40.7792653 -72.9153827)'), '', 'Brookhaven, New York'),
+        ROW(ST_GeomFromText('POINT(36.8516437 -75.97921939999999)'), '', 'Virginia Beach, Virginia'),
+        ROW(ST_GeomFromText('POINT(40.7297786 -73.2105665)'), '', 'Islip, New York'),
+        ROW(ST_GeomFromText('POINT(40.7315293 -74.1744671)'), '','Newark, New Jersey');
