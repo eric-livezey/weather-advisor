@@ -70,7 +70,6 @@ async function collectForecasts(conn, locations, date) {
             try {
                 // fetch forecasts
                 const data = await provider.fn(lat, lng, location);
-                if (data.find())
                 // insert forecasts
                 await insertForecasts(conn, provider.type, data, location, date);
             } catch (e) {
