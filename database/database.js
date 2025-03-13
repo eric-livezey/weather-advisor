@@ -13,7 +13,7 @@ const ForecastProviderType = Object.freeze({
 const COLUMNS = ["location", "provider", "timestamp", "hour", "temperature", "precipitation", "wind_speed"];
 
 /**
- * @type {{ [P in import("./database").ForecastProviderType]: { normalize?: (obj: import("./database").ForecastDataTypes[P]) => Record<string, any>[]; columns: { [K in keyof import("./database").Forecast]?: { key: string; convert?: (val: any, index: number, data: import("./database").ForecastDataTypes[P], location: Location, date: Date) => import("./database").Forecast[K]; } }; } }}
+ * @type {{ [P in import("./database").ForecastProviderType]: { normalize?: (obj: import("./database").ForecastDataTypes[P]) => Record<string, any>[]; columns: { [K in keyof import("./database").Forecast]?: { key: string; convert?: (val: any, index: number, data: import("./database").ForecastDataTypes[P], location: Location, date: Date) => import("./database").Forecast[K]; }; }; }; }}
  */
 const MAPPINGS = {
     [ForecastProviderType.NWS]: {
@@ -177,11 +177,14 @@ async function insertForecasts(conn, provider, data, location, date) {
             } else if (key === "location") {
                 row.push(location.id);
             } else if (key === "hour") {
-                const now = new Date();
                 // previous column will always be timestamp because of the ordering of COLUMNS
                 const timestamp = row[row.length - 1];
-                let hour = now.getTime() - timestamp.getTime();
+                let hour = date.getTime() - timestamp.getTime();
                 hour = Math.floor(hour / 3600000);
+                // if the forecast is for now or earlier, skip it
+                if (hour < 1) {
+                    continue;
+                }
                 row.push(hour);
             } else {
                 row.push(null);
