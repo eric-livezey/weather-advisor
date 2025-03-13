@@ -132,6 +132,14 @@ const MAPPINGS = {
     }
 };
 
+function celciusToFahrenheit(value) {
+    return value * 9 / 5 + 32;
+}
+
+function kphToMph(value) {
+    return value / 1.609;
+}
+
 /**
  * @type {import("./database").query}
  */
@@ -145,6 +153,20 @@ function query(conn, options) {
             }
         });
     });
+}
+
+/**
+ * @type {import("./database").insertObservation}
+ */
+async function insertObservation(conn, data, date) {
+    const station = data.station.substring(data.station.lastIndexOf("/") + 1);
+    const timestamp = date;
+    const temperature = data.temperature?.value ? celciusToFahrenheit(data.temperature.value) : null;
+    const precipitation = data.precipitationLastHour?.value ? 1 : 0;
+    const windSpeed = data.windSpeed?.value ? kphToMph(data.temperature.value) : 0;
+    const values = [station, timestamp, temperature, precipitation, windSpeed];
+    const sql = format("INSERT INTO observations (station_id, timestamp, temperature, precipitation, wind_speed) VALUES (?, ?, ?, ?, ?)", values);
+    return await query(conn, sql);
 }
 
 /**
@@ -199,5 +221,6 @@ async function insertForecasts(conn, provider, data, location, date) {
 export {
     ForecastProviderType,
     query,
+    insertObservation,
     insertForecasts
 };

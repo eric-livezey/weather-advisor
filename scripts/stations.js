@@ -28,16 +28,16 @@ const { results: locations } = await query(conn, "SELECT * FROM locations");
 for (const location of locations) {
     // fetch point for location coords
     const { x: lat, y: lng } = location.coordinates;
-    const pointResponse = await getPoint(lat, lng);
-    const point = pointResponse.properties;
+    const { properties: point } = await getPoint(lat, lng);
     // fetch stations valid for the given point
-    let stationsResponse = await getGridpointStations(point.gridId, point.gridX, point.gridY);
-    const features = stationsResponse.features;
+    let page = await getGridpointStations(point.gridId, point.gridX, point.gridY);
+    let features = page.features;
     // if additional pages are present, fetch them and add the result to features
-    while (features.length === 500 && stationsResponse.pagination) {
-        const url = new URL(stationsResponse.pagination.next);
+    while (features.length === 500 && page.pagination) {
+        const url = new URL(page.pagination.next);
         const cursor = url.searchParams.get("cursor");
-        stationsResponse = await getGridpointStations(point.gridId, point.gridX, point.gridY, { cursor: cursor });
+        page = await getGridpointStations(point.gridId, point.gridX, point.gridY, { cursor: cursor });
+        features = page.features;
     }
     // find the closest stations (usually the first entry, but just to be sure)
     let result = null, shortest = Infinity;

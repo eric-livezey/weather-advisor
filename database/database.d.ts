@@ -1,7 +1,7 @@
 import { Connection, FieldInfo, GeometryType, QueryOptions } from "mysql";
 import { ForecastHourly2Day } from "../api/ibm";
 import { WeatherOverviewResponse } from "../api/msn";
-import { GridpointForecast } from "../api/nws";
+import { GridpointForecast, Observation as StationObservation } from "../api/nws";
 
 declare enum ForecastProviderType {
     NWS = 0,
@@ -54,6 +54,8 @@ declare interface QueryResponse<T = any> {
 
 declare function query(conn: Connection, options: string | QueryOptions): Promise<QueryResponse>;
 
+declare function insertObservation(conn: Connection, data: StationObservation, date: Date): Promise<QueryResponse>;
+
 declare function insertForecasts<T extends ForecastProviderType>(conn: Connection, provider: T, data: ForecastDataTypes[T], location: Location, date: Date): Promise<QueryResponse>;
 
 export {
@@ -64,5 +66,6 @@ export {
     Forecast,
     QueryResponse,
     query,
+    insertObservation,
     insertForecasts
 };

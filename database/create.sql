@@ -11,7 +11,7 @@ CREATE TABLE observations (
     station_id VARCHAR(8) NOT NULL,
     `timestamp` DATETIME NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
-    precipitation TINYINT UNSIGNED DEFAULT NULL,
+    precipitation BIT(1) DEFAULT NULL,
     wind_speed TINYINT UNSIGNED DEFAULT NULL,
     PRIMARY KEY(station_id, `timestamp`)
 );

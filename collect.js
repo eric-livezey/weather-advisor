@@ -2,27 +2,12 @@ import { createConnection } from "mysql";
 import { getWeatherForecast } from "./api/accuweather/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
-import { getGridpointForecastHourly, getPoint, getStationObservationsTime, GridpointForecastUnits } from "./api/nws/index.js";
-import { ForecastProviderType, insertForecasts, query } from "./database/database.js";
+import { getGridpointForecastHourly, getPoint, GridpointForecastUnits } from "./api/nws/index.js";
+import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
+import { getStationObservations } from "./api/nws/index.js";
 
 const INTERVAL = 3;
-const DELAY = 15;
-
-/**
- * @param {number} lat 
- * @param {number} lng 
- * @returns {Promise<import("./api/nws").GridpointForecast>}
- */
-async function getNwsForecast(lat, lng) {
-    let feature = await getPoint(lat, lng);
-    const point = feature.properties;
-    if (!point.gridId || !point.gridX || !point.gridY) {
-        return {};
-    }
-    feature = await getGridpointForecastHourly(point.gridId, point.gridX, point.gridY, { units: GridpointForecastUnits.US });
-    return feature.properties;
-}
-
+const DELAY = 10;
 const PROVIDERS = [
     {
         type: ForecastProviderType.IBM,
@@ -38,25 +23,88 @@ const PROVIDERS = [
     },
     {
         type: ForecastProviderType.NWS,
-        fn: getNwsForecast
+        fn: async (lat, lng) => {
+            let feature = await getPoint(lat, lng);
+            const point = feature.properties;
+            if (!point.gridId || !point.gridX || !point.gridY) {
+                return {};
+            }
+            feature = await getGridpointForecastHourly(point.gridId, point.gridX, point.gridY, { units: GridpointForecastUnits.US });
+            return feature.properties;
+        }
     }
 ];
 
+const missedStations = {};
+
+/**
+ * 
+ * @param {import("mysql").Connection} conn 
+ * @param {import("./database/database.js").Location[]} locations 
+ * @param {Date} date 
+ */
 async function collectObservations(conn, locations, date) {
+    // NOTE: Observations are currently collected from NWS from "/station/observations" for the closest valid station
+    // to a location. Observations are frequently not present for the previous hour when observed to missed stations
+    // are stored to be collected in the next cycle. These observations are also typically not on the hour exactly so
+    // the observed value is actually from some time after the specified date.
+    // The main issue with this is that the measured precipitation is cumulative over the last hour so if the observation
+    // was not collected exactly at the end of the hour period, it will overlap with the previous one and potentially be
+    // inaccurate to compare with the forecast 
     console.log(new Date().toLocaleString() + ":", "BEGIN COLLECT OBSERVATIONS");
-    for (const location of locations) {
-        const stationId = location.station_id;
-        const { x: lat, y: lng } = location.coordinates;
+    // collect from one hour ago since the observation should be during the hour
+    date = new Date(date.getTime());
+    date.setHours(date.getHours() - 1);
+    // collect any missed observations
+    for (const [id, { stationId, date, expires }] of Object.entries(missedStations)) {
+        if (date >= expires) {
+            // delete expired observations
+            delete missedStations[id];
+            continue;
+        }
+        const start = new Date(date.getTime() - 1);
+        const end = new Date(date.getTime());
+        start.setHours(date.getHours() - 1);
+        end.setHours(date.getHours());
         try {
-            // const data = await getStationObservationsTime(stationId, date.toISOString());
-            // await insertObservations(conn, data);
-            // const forecast = await getNwsForecast(lat, lng);
-            // get the forecast for the current hour
-            // const period = forecast.periods.find(p => new Date(Date.parse(p.startTime)).getTime() === date.getTime());
-            // forecast.periods = period ? [period] : [];
-            // await insertForecasts(conn, ForecastProviderType.NWS, forecast, location, date);
+            const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
+            if (features.length > 0) {
+                const observation = features[0].properties;
+                observation.timestamp = start.toISOString();
+                await insertObservation(conn, observation);
+                delete missedStations[id];
+            }
         } catch (e) {
+            delete missedStations[id];
             console.error(e);
+        }
+    }
+    // store collected stations so as not to collect from the same station twice
+    const collectedStations = new Set();
+    for (const { station_id: stationId } of locations) {
+        // if station ID is present and not yet collected
+        if (stationId && !collectedStations.has(stationId)) {
+            const start = new Date(date.getTime());
+            const end = new Date(date.getTime());
+            start.setHours(date.getHours() - 1);
+            end.setHours(date.getHours());
+            try {
+                const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
+                if (features.length > 0) {
+                    const observation = features[0].properties;
+                    observation.timestamp = start.toISOString();
+                    await insertObservation(conn, observation, date);
+                    collectedStations.add(stationId);
+                } else {
+                    // no observations were available so we should cache it
+                    const expires = new Date(date.getTime());
+                    // expires after 24 hours
+                    expires.setHours(date.getHours() + 24);
+                    missedStations[`${stationId}-${date.toISOString()}`] = { stationId, date, expires };
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
     console.log(new Date().toLocaleString() + ":", "END COLLECT OBSERVATIONS");
