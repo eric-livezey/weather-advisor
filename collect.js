@@ -7,20 +7,8 @@ import { ForecastProviderType, insertForecasts, insertObservation, query } from 
 import { getStationObservations } from "./api/nws/index.js";
 
 const INTERVAL = 3;
-const DELAY = 10;
+const DELAY = 15;
 const PROVIDERS = [
-    {
-        type: ForecastProviderType.IBM,
-        fn: getForecastHourly2Day
-    },
-    {
-        type: ForecastProviderType.MSN,
-        fn: getWeatherOverview
-    },
-    {
-        type: ForecastProviderType.ACCUWEATHER,
-        fn: getWeatherForecast
-    },
     {
         type: ForecastProviderType.NWS,
         fn: async (lat, lng) => {
@@ -32,6 +20,18 @@ const PROVIDERS = [
             feature = await getGridpointForecastHourly(point.gridId, point.gridX, point.gridY, { units: GridpointForecastUnits.US });
             return feature.properties;
         }
+    },
+    {
+        type: ForecastProviderType.IBM,
+        fn: getForecastHourly2Day
+    },
+    {
+        type: ForecastProviderType.MSN,
+        fn: getWeatherOverview
+    },
+    {
+        type: ForecastProviderType.ACCUWEATHER,
+        fn: getWeatherForecast
     }
 ];
 
@@ -50,7 +50,7 @@ async function collectObservations(conn, locations, date) {
     // the observed value is actually from some time after the specified date.
     // The main issue with this is that the measured precipitation is cumulative over the last hour so if the observation
     // was not collected exactly at the end of the hour period, it will overlap with the previous one and potentially be
-    // inaccurate to compare with the forecast 
+    // inaccurate to compare with the forecast.
     console.log(new Date().toLocaleString() + ":", "BEGIN COLLECT OBSERVATIONS");
     // collect from one hour ago since the observation should be during the hour
     date = new Date(date.getTime());

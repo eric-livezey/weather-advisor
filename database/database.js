@@ -186,6 +186,7 @@ async function insertForecasts(conn, provider, data, location, date) {
         const forecast = forecasts[i];
         const row = [];
         const mappings = MAPPINGS[provider].columns;
+        let valid = true;
         for (const key of COLUMNS) {
             const mapping = mappings[key];
             if (mapping && mapping.key in forecast) {
@@ -204,7 +205,8 @@ async function insertForecasts(conn, provider, data, location, date) {
                 let hour = date.getTime() - timestamp.getTime();
                 hour = Math.floor(hour / 3600000);
                 // if the forecast is for now or earlier, skip it
-                if (hour < 1) {
+                if (hour >= 0) {
+                    valid = false;
                     continue;
                 }
                 row.push(hour);
@@ -212,7 +214,9 @@ async function insertForecasts(conn, provider, data, location, date) {
                 row.push(null);
             }
         }
-        rows.push(row);
+        if (valid) {
+            rows.push(row);
+        }
     }
     const sql = format(`INSERT INTO forecasts (${COLUMNS.join(", ")}) VALUES ${rows.map(row => `ROW(${row.map(() => "?").join(", ")})`).join(", ")};`, rows.flat());
     return await query(conn, sql);
