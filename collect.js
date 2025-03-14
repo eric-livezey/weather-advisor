@@ -45,7 +45,7 @@ const missedStations = {};
  */
 async function collectObservations(conn, locations, date) {
     // NOTE: Observations are currently collected from NWS from "/station/observations" for the closest valid station
-    // to a location. Observations are frequently not present for the previous hour when observed to missed stations
+    // to a location. Observations are frequently not present for the previous hour when observed so missed stations
     // are stored to be collected in the next cycle. These observations are also typically not on the hour exactly so
     // the observed value is actually from some time after the specified date.
     // The main issue with this is that the measured precipitation is cumulative over the last hour so if the observation

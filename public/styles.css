@@ -49,6 +49,8 @@ body {
 
 .global-header__navigation-item {
     margin: 0 .5rem;
+    display: flex;
+    align-items: center;
 }
 
 .global-header__navigation-link {
@@ -112,6 +114,11 @@ body {
     width: calc(100% - 10rem);
     height: 10rem;
     transition: opacity .4s;
+}
+
+.icon {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .hidden {
