@@ -1,5 +1,4 @@
 
-import { config } from "../env.js";
 import { createConnection } from "mysql";
 import { query } from "../database/database.js";
 import { getGridpointStations, getPoint } from "../api/nws/index.js";
@@ -11,8 +10,6 @@ function distanceBetweenCoords(lat1, lng1, lat2, lng2) {
     lng2 *= Math.PI / 180;
     return Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng2 - lng1)) * 6371;
 }
-
-config();
 
 // create mysql connection
 const conn = createConnection({
@@ -54,9 +51,10 @@ for (const location of locations) {
             console.log(feature);
         }
     }
-    console.log(shortest);
+    // set the coordinates of the location to the coordinates of the station so forecasts are collected more accurately
+    const [y, x] = result.geometry.coordinates;
     // update locations
-    conn.query(`UPDATE locations SET station_id='${result.properties.stationIdentifier}' WHERE id=${location.id}`);
+    conn.query(`UPDATE locations SET station_id='${result.properties.stationIdentifier}', coordinates=ST_GeomFromText('POINT(${x} ${y})') WHERE id=${location.id}`);
 }
 // end connection
 conn.end();

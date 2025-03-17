@@ -1,9 +1,7 @@
 import express from "express";
 import { geocode } from "./api/geocoding/index.js";
 import { initiateCollection } from "./collect.js";
-import { config } from "./env.js";
 
-config();
 initiateCollection();
 
 const app = express();
@@ -17,8 +15,7 @@ app.get("/api/forecast/services", async (req, res) => {
     if (req.query.address) {
         try {
             const location = await geocode(req.query.address);
-            res.type("json");
-            res.send({
+            res.json({
                 address: location.formatted_address,
                 services: []
             });
@@ -34,8 +31,7 @@ app.get("/api/forecast/services", async (req, res) => {
 app.get("/api/forecast/services/:service", (req, res) => {
     // TODO: Return a representation of the accuracy of a particular service
     const service = req.params["service"];
-    res.type("json");
-    res.send({ service });
+    res.json({ service });
 });
 
 app.listen(port, () => {

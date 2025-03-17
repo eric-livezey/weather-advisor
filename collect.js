@@ -71,7 +71,7 @@ async function collectObservations(conn, locations, date) {
             if (features.length > 0) {
                 const observation = features[0].properties;
                 observation.timestamp = start.toISOString();
-                await insertObservation(conn, observation);
+                await insertObservation(conn, observation, date);
                 delete missedStations[id];
             }
         } catch (e) {
