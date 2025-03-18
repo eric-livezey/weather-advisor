@@ -2,12 +2,14 @@ import { Connection, FieldInfo, GeometryType, QueryOptions } from "mysql";
 import { ForecastHourly2Day } from "../api/ibm";
 import { WeatherOverviewResponse } from "../api/msn";
 import { GridpointForecast, Observation as StationObservation } from "../api/nws";
+import { HourlyForecastData } from "../api/openweathermap";
 
 declare enum ForecastProviderType {
     NWS = 0,
     IBM = 1,
     MSN = 2,
-    ACCUWEATHER = 3
+    ACCUWEATHER = 3,
+    OPEN_WEATHER_MAP = 4
 }
 
 declare interface ForecastDataTypes {
@@ -20,6 +22,7 @@ declare interface ForecastDataTypes {
         precip: string,
         wind: string
     }[];
+    [ForecastProviderType.OPEN_WEATHER_MAP]: HourlyForecastData;
 }
 
 declare interface Location {
@@ -34,6 +37,7 @@ declare interface Observation {
     timestamp: Date;
     temperature: number;
     precipitation: number;
+    humidity: number;
     wind_speed: number;
 }
 
@@ -44,6 +48,7 @@ declare interface Forecast {
     hour: number;
     temperature: number;
     precipitation: number;
+    humidity: number;
     wind_speed: number;
 }
 

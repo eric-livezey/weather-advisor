@@ -6,12 +6,14 @@ const ITEM = /<div [^>]*class="[^"]*hour[^"]*"[^>]*>((?:(?!<\/p>(?:<\/div>){5}).
 const TIME = /<h2 [^>]*class="[^"]*date[^"]*"[^>]*>((?:(?!<\/h2>).)*)<\/h2>/g;
 const TEMPERATURE = /<div [^>]*class="[^"]*temp[^"]*"[^>]*>((?:(?!<\/div>).)*)<\/div>/g;
 const PRECIPITATION = /<div [^>]*class="[^"]*precip[^"]*"[^>]*>((?:(?!<\/div>).)*)<\/div>/g;
-const WIND = /<p>Wind((?:(?!<\/p>).)*)<\/p>/
+const WIND = /<p>Wind<((?:(?!<\/p>).)*)<\/p>/g;
+const HUMIDITY = /<p>Humidity<((?:(?!<\/p>).)*)<\/p>/g;
 const NON_TEXT = /<svg[^>]*>(?:(?!<\/svg>).)*<\/svg>|<\/?[a-z\-]+[^>]*>/g;
 const PROPERTIES = [
     [TIME, "time"],
-    [TEMPERATURE, "temp"],
-    [PRECIPITATION, "precip"],
+    [TEMPERATURE, "temperature"],
+    [PRECIPITATION, "precipitation"],
+    [HUMIDITY, "humidity"],
     [WIND, "wind"]
 ];
 

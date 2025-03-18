@@ -5,11 +5,15 @@ import { getWeatherOverview } from "./api/msn/index.js";
 import { getGridpointForecastHourly, getPoint, GridpointForecastUnits } from "./api/nws/index.js";
 import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
 import { getStationObservations } from "./api/nws/index.js";
+import { getHourlyForecastData } from "./api/openweathermap/index.js";
 
 const INTERVAL = 3;
 const DELAY = 15;
 const PROVIDERS = [
     {
+        name: "National Weather Service",
+        siteName: "National Weather Service",
+        url: "https://www.weather.gov/",
         type: ForecastProviderType.NWS,
         fn: async (lat, lng) => {
             let feature = await getPoint(lat, lng);
@@ -22,16 +26,32 @@ const PROVIDERS = [
         }
     },
     {
+        name: "IBM",
+        siteName: "The Weather Channel",
+        url: "https://weather.com/",
         type: ForecastProviderType.IBM,
         fn: getForecastHourly2Day
     },
     {
+        name: "msn",
+        siteName: "msn",
+        url: "https://www.msn.com/",
         type: ForecastProviderType.MSN,
         fn: getWeatherOverview
     },
     {
+        name: "AccuWeather",
+        siteName: "AccuWeather",
+        url: "https://www.accuweather.com/",
         type: ForecastProviderType.ACCUWEATHER,
         fn: getWeatherForecast
+    },
+    {
+        name: "OpenWeatherMap",
+        siteName: "OpenWeather",
+        url: "https://openweathermap.org/",
+        type: ForecastProviderType.OPEN_WEATHER_MAP,
+        fn: getHourlyForecastData
     }
 ];
 
@@ -75,7 +95,6 @@ async function collectObservations(conn, locations, date) {
                 delete missedStations[id];
             }
         } catch (e) {
-            delete missedStations[id];
             console.error(e);
         }
     }
@@ -103,6 +122,11 @@ async function collectObservations(conn, locations, date) {
                     missedStations[`${stationId}-${date.toISOString()}`] = { stationId, date, expires };
                 }
             } catch (e) {
+                // something went wrong so cache it to try again later
+                const expires = new Date(date.getTime());
+                // expires after 24 hours
+                expires.setHours(date.getHours() + 24);
+                missedStations[`${stationId}-${date.toISOString()}`] = { stationId, date, expires };
                 console.error(e);
             }
         }
@@ -117,9 +141,21 @@ async function collectForecasts(conn, locations, date) {
             const { x: lat, y: lng } = location.coordinates;
             try {
                 // fetch forecasts
-                const data = await provider.fn(lat, lng, location);
+                let attempt = 0;
+                let data = null;
+                while (!data && attempt < 5) {
+                    // retry in case of connection errors
+                    attempt++;
+                    try {
+                        data = await provider.fn(lat, lng, location);
+                    } catch (e) {
+                        console.error(`Forecast collection from ${provider.name} failed attempt ${attempt}/5:`, e);
+                    }
+                }
                 // insert forecasts
-                await insertForecasts(conn, provider.type, data, location, date);
+                if (data) {
+                    await insertForecasts(conn, provider.type, data, location, date);
+                }
             } catch (e) {
                 console.error(e);
             }

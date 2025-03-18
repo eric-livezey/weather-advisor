@@ -12,6 +12,7 @@ CREATE TABLE observations (
     `timestamp` DATETIME NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
     precipitation BIT(1) DEFAULT NULL,
+    humidity TINYINT UNSIGNED DEFAULT NULL,
     wind_speed TINYINT UNSIGNED DEFAULT NULL,
     PRIMARY KEY(station_id, `timestamp`)
 );
@@ -22,6 +23,7 @@ CREATE TABLE forecasts (
     `hour` SMALLINT NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
     precipitation TINYINT UNSIGNED DEFAULT NULL,
+    humidity TINYINT UNSIGNED DEFAULT NULL,
     wind_speed TINYINT UNSIGNED DEFAULT NULL,
     PRIMARY KEY(`location`, `provider`, `timestamp`, `hour`),
     FOREIGN KEY (`location`) REFERENCES locations(id)

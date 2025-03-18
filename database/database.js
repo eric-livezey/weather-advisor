@@ -7,10 +7,11 @@ const ForecastProviderType = Object.freeze({
     NWS: 0,
     IBM: 1,
     MSN: 2,
-    ACCUWEATHER: 3
+    ACCUWEATHER: 3,
+    OPEN_WEATHER_MAP: 4
 });
 
-const COLUMNS = ["location", "provider", "timestamp", "hour", "temperature", "precipitation", "wind_speed"];
+const COLUMNS = ["location", "provider", "timestamp", "hour", "temperature", "precipitation", "humidity", "wind_speed"];
 
 /**
  * @type {{ [P in import("./database").ForecastProviderType]: { normalize?: (obj: import("./database").ForecastDataTypes[P]) => Record<string, any>[]; columns: { [K in keyof import("./database").Forecast]?: { key: string; convert?: (val: any, index: number, data: import("./database").ForecastDataTypes[P], location: Location, date: Date) => import("./database").Forecast[K]; }; }; }; }}
@@ -31,6 +32,10 @@ const MAPPINGS = {
             },
             precipitation: {
                 key: "probabilityOfPrecipitation",
+                convert: val => val?.value
+            },
+            humidity: {
+                key: "relativeHumidity",
                 convert: val => val?.value
             },
             wind_speed: {
@@ -65,6 +70,9 @@ const MAPPINGS = {
             precipitation: {
                 key: "precipChance"
             },
+            humidity: {
+                key: "relativeHumidity"
+            },
             wind_speed: {
                 key: "windSpeed"
             }
@@ -84,6 +92,9 @@ const MAPPINGS = {
             },
             precipitation: {
                 key: "precip"
+            },
+            humidity: {
+                key: "rh"
             },
             wind_speed: {
                 key: "windSpd"
@@ -117,16 +128,44 @@ const MAPPINGS = {
                 }
             },
             temperature: {
-                key: "temp",
+                key: "temperature",
                 convert: (val) => Number(val.replaceAll(/[^0-9]/g, ""))
             },
             precipitation: {
-                key: "precip",
+                key: "precipitation",
+                convert: (val) => Number(val.replaceAll(/[^0-9]/g, ""))
+            },
+            humidity: {
+                key: "humidity",
                 convert: (val) => Number(val.replaceAll(/[^0-9]/g, ""))
             },
             wind_speed: {
                 key: "wind",
                 convert: (val) => Number(val.replaceAll(/[^0-9]/g, ""))
+            }
+        }
+    },
+    [ForecastProviderType.OPEN_WEATHER_MAP]: {
+        normalize: (obj) => obj.list,
+        columns: {
+            timestamp: {
+                key: "dt",
+                convert: (val) => new Date(val * 1000)
+            },
+            temperature: {
+                key: "main",
+                convert: (val) => val.temp
+            },
+            precipitation: {
+                key: "pop"
+            },
+            humidity: {
+                key: "main",
+                convert: (val) => val.humidity
+            },
+            wind_speed: {
+                key: "wind",
+                convert: (val) => val.speed
             }
         }
     }
@@ -163,9 +202,10 @@ async function insertObservation(conn, data, date) {
     const timestamp = date;
     const temperature = data.temperature?.value ? celciusToFahrenheit(data.temperature.value) : null;
     const precipitation = data.precipitationLastHour?.value ? 1 : 0;
+    const humidity = data.relativeHumidity?.value;
     const windSpeed = data.windSpeed?.value ? kphToMph(data.temperature.value) : 0;
-    const values = [station, timestamp, temperature, precipitation, windSpeed];
-    const sql = format("INSERT INTO observations (station_id, timestamp, temperature, precipitation, wind_speed) VALUES (?, ?, ?, ?, ?)", values);
+    const values = [station, timestamp, temperature, precipitation, humidity, windSpeed];
+    const sql = format("INSERT INTO observations (station_id, timestamp, temperature, precipitation, humidity, wind_speed) VALUES (?, ?, ?, ?, ?, ?)", values);
     return await query(conn, sql);
 }
 
@@ -207,7 +247,7 @@ async function insertForecasts(conn, provider, data, location, date) {
                 // if the forecast is for now or earlier, skip it
                 if (hour >= 0) {
                     valid = false;
-                    continue;
+                    break;
                 }
                 row.push(hour);
             } else {

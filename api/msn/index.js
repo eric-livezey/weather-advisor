@@ -33,6 +33,7 @@ async function getWeatherOverview(lat, lng) {
         startDate: 0,
         endDate: 9,
         days: 10,
+        units: "F",
         region: "us",
         market: "en-us",
         locale: "en-us"
