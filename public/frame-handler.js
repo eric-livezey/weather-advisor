@@ -17,9 +17,8 @@ input.addEventListener("change", async event => {
     const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
     const result = await response.json();
     if (location) {
-
         input.classList.add("is-active");
-        locationHeading.innerText = `${result}`;
+        locationHeading.innerText = `${result.address}`;
         locationHeading.style.display = "block";
         framesContainer.style.display = "flex";
     } else {
