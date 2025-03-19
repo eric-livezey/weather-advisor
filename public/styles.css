@@ -62,10 +62,13 @@ body {
     text-decoration: none;
 }
 
+.global-header__navigation-icon {
+    display: flex;
+}
+
 .global-header__navigation-link:hover {
     color: #444;
 }
-
 
 .layout-content {
     position: absolute;
@@ -84,44 +87,34 @@ body {
     background: linear-gradient(#eee, #fff, #eee);
 }
 
-
-
-
 .location-input {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 20rem;
     padding: 1rem;
     border: 1px solid #000;
     border-radius: 1.25rem;
     width: 50%;
     height: 2.5rem;
-    transition: all 0.5s ease-in-out;
-    background-color: white; 
-    z-index: 10; 
+    transition: all 400ms ease-in-out;
+    background-color: white;
+    z-index: 10;
 }
 
 
 .location-input.is-active {
-top: 10rem; 
-    left: 50%;
-    transform: translateX(-50%); 
+    top: 10rem;
 }
-
-
 
 .location-heading {
     font-size: 1.5rem;
     font-weight: bold;
-    display: none; 
     margin-top: 7rem;
+    transition: opacity 400ms ease-out;
 }
 
-
 .frames-container {
-    display: none;
-    margin-top: 2rem; 
+    display: flex;
+    margin-top: 2rem;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
@@ -132,8 +125,8 @@ top: 10rem;
     border-radius: 1.25rem;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: opacity 400ms ease-out;
 }
-
 
 .frame {
     flex: 1 1 18%;
@@ -154,30 +147,30 @@ top: 10rem;
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 .chart-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 300px;
     height: 200px;
-    margin-left: 20px;
+    margin-left: 3rem;
     border: 1px solid #000;
     border-radius: 1.25rem;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transform: translateX(50px);
-    transition: opacity 0.4s, transform 0.4s ease-in-out;
 }
 
-.hidden {
+.hide {
     display: none;
 }
 
+.hidden {
+    opacity: 0;
+}
+
 .show {
-    display: flex;
     opacity: 1;
-    transform: translateX(0);
 }
 
 .footer {
@@ -190,12 +183,6 @@ top: 10rem;
     text-align: center;
     background: #fff;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, .07);
-}
-@media (max-width: 768px) {
-    .frame {
-        flex-basis: 48%;
-        max-width: none;
-    }
 }
 
 .service-list_container {
@@ -211,8 +198,4 @@ top: 10rem;
 .icon {
     width: 1.5rem;
     height: 1.5rem;
-}
-
-.hidden {
-    opacity: 0;
 }

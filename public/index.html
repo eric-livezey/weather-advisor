@@ -23,7 +23,8 @@
                             <a class="global-header__navigation-link" href="/">Our Methodology</a>
                         </li>
                         <li class="global-header__navigation-item">
-                            <a class="global-header__navigation-link" href="https://www.github.com/eric-livezey/weather-advisor">
+                            <a class="global-header__navigation-icon"
+                                href="https://www.github.com/eric-livezey/weather-advisor">
                                 <svg class="icon" aria-hidden="true">
                                     <use href="/assets/icons/symbols.svg#github"></use>
                                 </svg>
@@ -37,74 +38,21 @@
             <h1>Compare the Accuracy of different weather services.</h1>
             <p>Enter a city or zip code to see the results!</p>
             <input id="location-input" class="location-input" type="text" placeholder="Enter a city or zip code">
-            
-            <h2 id="location-heading" class="location-heading" style="display: none;"></h2>
 
-            <div class="frames-container">
-                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
-                    <div class = "text-wrapper-2">Weather Service Name</div>
-                    <p class = "accuracy-rating">
-                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
-                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
-                        Wind Rating: <span class = "wind">Xx%</span><br />
-                    </p>
-                    <div class = "text-wrapper-2 temperature">±X°</div>
-                </div>
+            <h2 id="location-heading" class="location-heading hidden"></h2>
 
-                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
-                    <div class = "text-wrapper-2">Weather Service Name</div>
-                    <p class = "accuracy-rating">
-                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
-                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
-                        Wind Rating: <span class = "wind">Xx%</span><br />
-                    </p>
-                    <div class = "text-wrapper-2 temperature">±X°</div>
-                </div>
-
-                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
-                    <div class = "text-wrapper-2">Weather Service Name</div>
-                    <p class = "accuracy-rating">
-                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
-                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
-                        Wind Rating: <span class = "wind">Xx%</span><br />
-                    </p>
-                    <div class = "text-wrapper-2 temperature">±X°</div>
-                </div>
-
-                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
-                    <div class = "text-wrapper-2">Weather Service Name</div>
-                    
-                    <p class = "accuracy-rating">
-                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
-                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
-                        Wind Rating: <span class = "wind">Xx%</span><br />
-                    </p>
-                    <div class = "text-wrapper-2 temperature">±X°</div>
-                </div>
-
-                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
-                    <div class = "text-wrapper-2">Weather Service Name</div>
-                    <p class = "accuracy-rating">
-                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
-                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
-                        Wind Rating: <span class = "wind">Xx%</span><br />
-                    </p>
-                    <div class = "text-wrapper-2 temperature">±X°</div>
-                </div>
-                <div class="chart-container hidden">
+            <div id="content" class="frames-container hidden">
+                <div id="frames"></div>
+                <div class="chart-container hide">
                     <div class="chart-placeholder">📊 Chart will appear here</div>
                 </div>
-            </div>
-
-            <div id="service-list-container" class="service-list_container hidden">
-                <p><b id="location"></b></p>
             </div>
         </div>
         <footer class="footer">
             <p>&copy; Weather Advisor 2025</p>
         </footer>
     </section>
-    <script src="/frame-handler.js" ></script>
+    <script src="/frame-handler.js"></script>
 </body>
 
 </html>
