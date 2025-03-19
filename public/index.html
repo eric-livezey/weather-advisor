@@ -37,6 +37,65 @@
             <h1>Compare the Accuracy of different weather services.</h1>
             <p>Enter a city or zip code to see the results!</p>
             <input id="location-input" class="location-input" type="text" placeholder="Enter a city or zip code">
+            
+            <h2 id="location-heading" class="location-heading" style="display: none;"></h2>
+
+            <div class="frames-container">
+                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
+                    <div class = "text-wrapper-2">Weather Service Name</div>
+                    <p class = "accuracy-rating">
+                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
+                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
+                        Wind Rating: <span class = "wind">Xx%</span><br />
+                    </p>
+                    <div class = "text-wrapper-2 temperature">±X°</div>
+                </div>
+
+                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
+                    <div class = "text-wrapper-2">Weather Service Name</div>
+                    <p class = "accuracy-rating">
+                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
+                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
+                        Wind Rating: <span class = "wind">Xx%</span><br />
+                    </p>
+                    <div class = "text-wrapper-2 temperature">±X°</div>
+                </div>
+
+                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
+                    <div class = "text-wrapper-2">Weather Service Name</div>
+                    <p class = "accuracy-rating">
+                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
+                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
+                        Wind Rating: <span class = "wind">Xx%</span><br />
+                    </p>
+                    <div class = "text-wrapper-2 temperature">±X°</div>
+                </div>
+
+                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
+                    <div class = "text-wrapper-2">Weather Service Name</div>
+                    
+                    <p class = "accuracy-rating">
+                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
+                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
+                        Wind Rating: <span class = "wind">Xx%</span><br />
+                    </p>
+                    <div class = "text-wrapper-2 temperature">±X°</div>
+                </div>
+
+                <div class = "frame" data-temperature = "0" data-precipitation = "0" data-wind = "0" data-accuracy = "0">
+                    <div class = "text-wrapper-2">Weather Service Name</div>
+                    <p class = "accuracy-rating">
+                        Accuracy Rating: <span class = "accuracy">Xx%</span><br />
+                        Precipitation Rating: <span class = "precipitation">Xx%</span><br />
+                        Wind Rating: <span class = "wind">Xx%</span><br />
+                    </p>
+                    <div class = "text-wrapper-2 temperature">±X°</div>
+                </div>
+                <div class="chart-container hidden">
+                    <div class="chart-placeholder">📊 Chart will appear here</div>
+                </div>
+            </div>
+
             <div id="service-list-container" class="service-list_container hidden">
                 <p><b id="location"></b></p>
             </div>
@@ -45,28 +104,7 @@
             <p>&copy; Weather Advisor 2025</p>
         </footer>
     </section>
-    <script>
-        const input = document.getElementById("location-input");
-        const bold = document.getElementById("location");
-        const container = document.getElementById("service-list-container");
-        input.addEventListener("change", async event => {
-            if (event.target.value) {
-                const address = event.target.value;
-                const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
-                const result = await response.json();
-                bold.innerText = `${result.address || "Invalid Address"}`;
-                if (!input.classList.contains("is-active"))
-                    input.classList.add("is-active");
-                if (container.classList.contains("hidden"))
-                    container.classList.remove("hidden");
-            } else {
-                if (input.classList.contains("is-active"))
-                    input.classList.remove("is-active");
-                if (!container.classList.contains("hidden"))
-                    container.classList.add("hidden");
-            }
-        });
-    </script>
+    <script src="/frame-handler.js" ></script>
 </body>
 
 </html>
