@@ -6,6 +6,7 @@ import { getGridpointForecastHourly, getPoint, getStationObservations, Gridpoint
 import { getHourlyForecastData } from "./api/openweathermap/index.js";
 import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
 import { geocode } from "./api/geocoding/index.js";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 
 const INTERVAL = 3;
 const DELAY = 15;
@@ -205,7 +206,17 @@ async function getAccuracyData(provider, locationId) {
     return result;
 }
 
-const missedStations = {};
+// save missed stations on the disk so they are not lost when restarted
+
+const PATH_TO_CACHE = "./cache.json";
+
+function savedMissedStations(data) {
+    writeFileSync(PATH_TO_CACHE, JSON.stringify(data));
+}
+
+function getMissedStations() {
+    return existsSync(PATH_TO_CACHE) ? JSON.parse(readFileSync(PATH_TO_CACHE).toString()) : {};
+}
 
 async function collectObservations(conn, locations, date) {
     // NOTE: Observations are currently collected from NWS from "/station/observations" for the closest valid station
@@ -219,6 +230,7 @@ async function collectObservations(conn, locations, date) {
     date = new Date(date.getTime());
     date.setHours(date.getHours() - 1);
     // collect any missed observations
+    const missedStations = getMissedStations();
     for (const [id, { stationId, date, expires }] of Object.entries(missedStations)) {
         if (date >= expires) {
             // delete expired observations
