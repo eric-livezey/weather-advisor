@@ -10,6 +10,9 @@ input.addEventListener("change", async event => {
         const address = event.target.value;
         const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
         if (response.ok) {
+            while (serviceSummaries.length > 0) {
+                serviceSummaries.pop().remove();
+            }
             const result = await response.json();
             locationHeading.innerText = `${result.address || "Invalid Address"}`;
             content.dataset.location = result.id;
@@ -46,9 +49,6 @@ input.addEventListener("change", async event => {
         locationHeading.classList.add("hidden");
         setTimeout(() => {
             detail.classList.add("hide");
-            while (serviceSummaries.length > 0) {
-                serviceSummaries.pop().remove();
-            }
         }, 400);
     }
 });
