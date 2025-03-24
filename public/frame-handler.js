@@ -1,46 +1,53 @@
 const input = document.getElementById("location-input");
 const locationHeading = document.getElementById("location-heading");
-const content = document.getElementById("content");
-const frameContainer = document.getElementById("frames");
-const serviceFrames = [];
+const content = document.getElementById("container");
+const services = document.getElementById("service-list");
+const detail = document.getElementById("detail");
+const serviceSummaries = [];
 
 input.addEventListener("change", async event => {
     if (event.target.value) {
         const address = event.target.value;
         const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
-        const result = await response.json();
-        locationHeading.innerText = `${result.address || "Invalid Address"}`;
-        for (const service of result.services) {
-            const container = document.createElement("div");
-            container.classList.add("frame");
-            const header = document.createElement("h3");
-            container.dataset.name = service.name;
-            header.classList.add("frame__heading");
-            header.innerText = service.name;
-            header.tabIndex = -1;
-            container.append(header);
-            for (const data of service.summary) {
-                const { label, value } = data;
-                const el = document.createElement("p");
-                el.classList.add("frame__value");
-                el.innerText = `${label}: ${value}`;
-                container.append(el);
+        if (response.ok) {
+            const result = await response.json();
+            locationHeading.innerText = `${result.address || "Invalid Address"}`;
+            content.dataset.location = result.id;
+            for (const service of result.services) {
+                const container = document.createElement("div");
+                container.classList.add("service-list__item");
+                const header = document.createElement("h3");
+                container.dataset.name = service.name;
+                container.dataset.id = service.id;
+                header.classList.add("service-list__header");
+                header.innerText = service.name;
+                container.append(header);
+                for (const data of service.summary) {
+                    const { label, value } = data;
+                    const el = document.createElement("p");
+                    el.classList.add("service-list__value");
+                    el.innerText = `${label}: ${value}`;
+                    container.append(el);
+                }
+                container.addEventListener("click", handleFrameClick)
+                services.append(container);
+                serviceSummaries.push(container);
             }
-            container.addEventListener("click", handleFrameClick)
-            frameContainer.append(container);
-            serviceFrames.push(container);
+            services.classList.remove("hide");
+        } else {
+            locationHeading.innerText = "Invalid Location"
         }
         input.classList.add("is-active");
         content.classList.remove("hidden");
         locationHeading.classList.remove("hidden");
-        frameContainer.classList.remove("hide");
     } else {
         input.classList.remove("is-active");
         content.classList.add("hidden");
         locationHeading.classList.add("hidden");
         setTimeout(() => {
-            while (serviceFrames.length > 0) {
-                serviceFrames.pop().remove();
+            detail.classList.add("hide");
+            while (serviceSummaries.length > 0) {
+                serviceSummaries.pop().remove();
             }
         }, 400);
     }
@@ -52,9 +59,11 @@ input.addEventListener("change", async event => {
  */
 async function handleFrameClick(event) {
     const frame = event.currentTarget;
-    frameContainer.classList.add("hide");
-    const name = frame.dataset.name;
-    const res = await fetch("/api/forecast/services/" + encodeURIComponent(name));
+    services.classList.add("hide");
+    detail.classList.remove("hide");
+    const location = content.dataset.location;
+    const provider = frame.dataset.id;
+    const res = await fetch(`/api/forecast/accuracy?provider=${encodeURIComponent(provider)}&location=${encodeURIComponent(location)}`);
     const data = await res.json();
     console.log(data);
     // Display graph and hide frames based on frame content
