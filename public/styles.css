@@ -121,6 +121,7 @@ body {
 
 .service-list {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .service-list__item {
