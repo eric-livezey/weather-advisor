@@ -231,7 +231,8 @@ async function collectObservations(conn, locations, date) {
     date.setHours(date.getHours() - 1);
     // collect any missed observations
     const missedStations = getMissedStations();
-    for (const [id, { stationId, date, expires }] of Object.entries(missedStations)) {
+    for (const [id, { stationId, timestamp, expires }] of Object.entries(missedStations)) {
+        const date = new Date(timestamp);
         if (date >= expires) {
             // delete expired observations
             delete missedStations[id];
