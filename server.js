@@ -1,6 +1,5 @@
 import express from "express";
 import { getAccuracyData, getLocation, getProviderSummaries, initiateCollection } from "./collect.js";
-import { ForecastProviderType } from "./database/database.js";
 
 initiateCollection();
 
