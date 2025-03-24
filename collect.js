@@ -91,10 +91,10 @@ async function getProviderSummaries(locationId) {
     for (const provider of PROVIDERS) {
         // calculate accuracies
         const sql = format("SELECT\n" +
-            "AVG(ABS(forecasts.temperature - ROUND(observations.temperature))) as temperature,\n" +
-            "AVG(TRUNCATE(1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2), 2)) AS precipitation,\n" +
-            "AVG(ABS(forecasts.wind_speed - observations.wind_speed)) AS windSpeed,\n" +
-            "AVG(ABS(forecasts.humidity - observations.humidity)) AS humidity\n" +
+            "TRUNCATE(AVG(ABS(forecasts.temperature - ROUND(observations.temperature))), 2) as temperature,\n" +
+            "TRUNCATE(AVG(1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2)), 2) AS precipitation,\n" +
+            "TRUNCATE(AVG(ABS(forecasts.wind_speed - observations.wind_speed)), 2) AS windSpeed,\n" +
+            "TRUNCATE(AVG(ABS(forecasts.humidity - observations.humidity)), 2) AS humidity\n" +
             "FROM forecasts\n" +
             "INNER JOIN locations ON forecasts.location=locations.id\n" +
             "INNER JOIN observations ON observations.station_id=locations.station_id AND observations.timestamp=forecasts.timestamp\n" +
