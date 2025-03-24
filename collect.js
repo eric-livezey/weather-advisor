@@ -1,12 +1,12 @@
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { createConnection, format } from "mysql";
 import { getWeatherForecast } from "./api/accuweather/index.js";
+import { geocode } from "./api/geocoding/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
 import { getGridpointForecastHourly, getPoint, getStationObservations, GridpointForecastUnits } from "./api/nws/index.js";
 import { getHourlyForecastData } from "./api/openweathermap/index.js";
 import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
-import { geocode } from "./api/geocoding/index.js";
-import { existsSync, readFileSync, writeFileSync } from "fs";
 
 const INTERVAL = 3;
 const DELAY = 15;
@@ -286,6 +286,7 @@ async function collectObservations(conn, locations, date) {
             }
         }
     }
+    savedMissedStations(missedStations);
     console.log(new Date().toLocaleString() + ":", "END COLLECT OBSERVATIONS");
 }
 
