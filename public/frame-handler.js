@@ -13,6 +13,7 @@ input.addEventListener("change", async event => {
             while (serviceSummaries.length > 0) {
                 serviceSummaries.pop().remove();
             }
+            detail.classList.add("hide");
             const result = await response.json();
             locationHeading.innerText = `${result.address || "Invalid Address"}`;
             content.dataset.location = result.id;
