@@ -203,7 +203,7 @@ async function insertObservation(conn, data, date) {
     const temperature = data.temperature?.value ? celciusToFahrenheit(data.temperature.value) : null;
     const precipitation = data.precipitationLastHour?.value ? 1 : 0;
     const humidity = data.relativeHumidity?.value || null;
-    const windSpeed = data.windSpeed?.value ? kphToMph(data.temperature.value) : 0;
+    const windSpeed = data.windSpeed?.value ? kphToMph(data.temperature.value) : null;
     const values = [station, timestamp, temperature, precipitation, humidity, windSpeed];
     const sql = format("INSERT INTO observations (station_id, timestamp, temperature, precipitation, humidity, wind_speed) VALUES (?, ?, ?, ?, ?, ?)", values);
     return await query(conn, sql);
