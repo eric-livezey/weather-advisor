@@ -232,22 +232,22 @@ async function collectObservations(conn, locations, date) {
     // collect any missed observations
     const missedStations = getMissedStations();
     for (const [id, { stationId, date: timestamp, expires }] of Object.entries(missedStations)) {
-        const date = new Date(timestamp);
-        if (date >= expires) {
+        const collectionDate = new Date(timestamp);
+        if (date.getTime() >= Date.parse(expires)) {
             // delete expired observations
             delete missedStations[id];
             continue;
         }
-        const start = new Date(date.getTime() - 1);
-        const end = new Date(date.getTime());
-        start.setHours(date.getHours() - 1);
-        end.setHours(date.getHours());
+        const start = new Date(collectionDate.getTime() - 1);
+        const end = new Date(collectionDate.getTime());
+        start.setHours(collectionDate.getHours() - 1);
+        end.setHours(collectionDate.getHours());
         try {
             const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
             if (features.length > 0) {
                 const observation = features[0].properties;
                 observation.timestamp = start.toISOString();
-                await insertObservation(conn, observation, date);
+                await insertObservation(conn, observation, collectionDate);
                 delete missedStations[id];
             }
         } catch (e) {
