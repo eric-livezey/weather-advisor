@@ -168,8 +168,8 @@ async function getAccuracyData(provider, locationId) {
             data: []
         },
         {
-            label: "Temperature",
-            key: "temperature",
+            label: "Humidity",
+            key: "humidity",
             data: []
         }
     ]
