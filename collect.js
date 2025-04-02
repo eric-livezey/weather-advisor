@@ -104,7 +104,7 @@ async function getProviderSummaries(locationId) {
         const row = rows[0];
         const summary = [
             { label: "Temperature", value: row.temperature !== null ? `±${row.temperature}°F` : "N/A" },
-            { label: "Precipitation", value: row.precipitation !== null ? row.precipitation : "N/A" },
+            { label: "Precipitation", value: row.precipitation !== null ? `${row.precipitation}%` : "N/A" },
             { label: "Wind Speed", value: row.windSpeed !== null ? `±${row.windSpeed} MPH` : "N/A" },
             { label: "Humidity", value: row.humidity !== null ? `±${row.humidity}%` : "N/A" }
         ];
