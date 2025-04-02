@@ -5,16 +5,16 @@ CREATE TABLE locations (
     coordinates POINT NOT NULL,
     station_id VARCHAR(8) NOT NULL,
     `address` VARCHAR(256) NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY (id)
 );
 CREATE TABLE observations (
     station_id VARCHAR(8) NOT NULL,
     `timestamp` DATETIME NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
     precipitation BIT(1) DEFAULT NULL,
-    humidity TINYINT UNSIGNED DEFAULT NULL,
-    wind_speed TINYINT UNSIGNED DEFAULT NULL,
-    PRIMARY KEY(station_id, `timestamp`)
+    humidity TINYINT DEFAULT NULL,
+    wind_speed SMALLINT DEFAULT NULL,
+    PRIMARY KEY (station_id, `timestamp`)
 );
 CREATE TABLE forecasts (
     `location` INTEGER UNSIGNED NOT NULL,
@@ -22,10 +22,10 @@ CREATE TABLE forecasts (
     `timestamp` DATETIME NOT NULL,
     `hour` SMALLINT NOT NULL,
     temperature DECIMAL(5, 2) DEFAULT NULL,
-    precipitation TINYINT UNSIGNED DEFAULT NULL,
-    humidity TINYINT UNSIGNED DEFAULT NULL,
-    wind_speed TINYINT UNSIGNED DEFAULT NULL,
-    PRIMARY KEY(`location`, `provider`, `timestamp`, `hour`),
+    precipitation TINYINT DEFAULT NULL,
+    humidity TINYINT DEFAULT NULL,
+    wind_speed SMALLINT DEFAULT NULL,
+    PRIMARY KEY (`location`, `provider`, `timestamp`, `hour`),
     FOREIGN KEY (`location`) REFERENCES locations(id)
 );
 /* 

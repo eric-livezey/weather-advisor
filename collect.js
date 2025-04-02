@@ -1,11 +1,12 @@
-import { createConnection } from "mysql";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { createConnection, format } from "mysql";
 import { getWeatherForecast } from "./api/accuweather/index.js";
+import { geocode } from "./api/geocoding/index.js";
 import { getForecastHourly2Day } from "./api/ibm/index.js";
 import { getWeatherOverview } from "./api/msn/index.js";
-import { getGridpointForecastHourly, getPoint, GridpointForecastUnits } from "./api/nws/index.js";
-import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
-import { getStationObservations } from "./api/nws/index.js";
+import { getGridpointForecastHourly, getPoint, getStationObservations, GridpointForecastUnits } from "./api/nws/index.js";
 import { getHourlyForecastData } from "./api/openweathermap/index.js";
+import { ForecastProviderType, insertForecasts, insertObservation, query } from "./database/database.js";
 
 const INTERVAL = 3;
 const DELAY = 15;
@@ -15,7 +16,7 @@ const PROVIDERS = [
         siteName: "National Weather Service",
         url: "https://www.weather.gov/",
         type: ForecastProviderType.NWS,
-        fn: async (lat, lng) => {
+        getForecasts: async (lat, lng) => {
             let feature = await getPoint(lat, lng);
             const point = feature.properties;
             if (!point.gridId || !point.gridX || !point.gridY) {
@@ -30,68 +31,223 @@ const PROVIDERS = [
         siteName: "The Weather Channel",
         url: "https://weather.com/",
         type: ForecastProviderType.IBM,
-        fn: getForecastHourly2Day
+        getForecasts: getForecastHourly2Day
     },
     {
         name: "msn",
         siteName: "msn",
         url: "https://www.msn.com/",
         type: ForecastProviderType.MSN,
-        fn: getWeatherOverview
+        getForecasts: getWeatherOverview
     },
     {
         name: "AccuWeather",
         siteName: "AccuWeather",
         url: "https://www.accuweather.com/",
         type: ForecastProviderType.ACCUWEATHER,
-        fn: getWeatherForecast
+        getForecasts: getWeatherForecast
     },
     {
         name: "OpenWeatherMap",
         siteName: "OpenWeather",
         url: "https://openweathermap.org/",
         type: ForecastProviderType.OPEN_WEATHER_MAP,
-        fn: getHourlyForecastData
+        getForecasts: getHourlyForecastData
     }
 ];
+const MY_SQL_CONFIG = {
+    host: "localhost",
+    user: "root",
+    password: process.env.MY_SQL_PASSWORD,
+    database: "weather_advisor"
+};
 
-const missedStations = {};
+/**
+ * @param {string} address 
+ * @returns {Promise<{id:number;address:string;distance:number;}|null>}
+ */
+async function getLocation(address) {
+    const location = await geocode(address);
+    if (!location)
+        return null;
+    const { lat, lng } = location.geometry.location;
+    const x = lat * Math.PI / 180;
+    const y = lng * Math.PI / 180;
+    // function to get distance in km
+    const distance = `ACOS(SIN(ST_X(coordinates) * PI() / 180) * SIN(${x}) + COS(ST_X(coordinates) * PI() / 180) * COS(${x}) * COS(${y} - ST_Y(coordinates) * PI() / 180)) * 6371`
+    // no need for santiziation since x and y are definitively numbers
+    const sql = `SELECT id, address, ${distance} as distance FROM locations WHERE ${distance}=(SELECT MIN(${distance}) FROM locations)`;
+    const conn = createConnection(MY_SQL_CONFIG);
+    conn.connect();
+    const { results: rows } = await query(conn, sql);
+    conn.end();
+    // make sure it's within 15 km
+    return rows.length > 0 && rows[0].distance < 15 ? rows[0] : null;
+}
+
+async function getProviderSummaries(locationId) {
+    const result = [];
+    const conn = createConnection(MY_SQL_CONFIG);
+    conn.connect();
+    for (const provider of PROVIDERS) {
+        // calculate accuracies
+        const sql = format("SELECT\n" +
+            "TRUNCATE(AVG(ABS(forecasts.temperature - ROUND(observations.temperature))), 2) as temperature,\n" +
+            "TRUNCATE(AVG(1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2)), 2) AS precipitation,\n" +
+            "TRUNCATE(AVG(ABS(forecasts.wind_speed - observations.wind_speed)), 2) AS windSpeed,\n" +
+            "TRUNCATE(AVG(ABS(forecasts.humidity - observations.humidity)), 2) AS humidity\n" +
+            "FROM forecasts\n" +
+            "INNER JOIN locations ON forecasts.location=locations.id\n" +
+            "INNER JOIN observations ON observations.station_id=locations.station_id AND observations.timestamp=forecasts.timestamp\n" +
+            "WHERE provider=? AND location=? AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY) AND hour=-3;", [provider.type, locationId]);
+        const { results: rows } = await query(conn, sql);
+        const row = rows[0];
+        const summary = [
+            { label: "Temperature", value: row.temperature !== null ? `±${row.temperature}°F` : "N/A" },
+            { label: "Precipitation", value: row.precipitation !== null ? row.precipitation : "N/A" },
+            { label: "Wind Speed", value: row.windSpeed !== null ? `±${row.windSpeed} MPH` : "N/A" },
+            { label: "Humidity", value: row.humidity !== null ? `±${row.humidity}%` : "N/A" }
+        ];
+        result.push({
+            id: provider.type,
+            name: provider.siteName,
+            url: provider.url,
+            summary
+        });
+    }
+    conn.end();
+    return result;
+}
 
 /**
  * 
- * @param {import("mysql").Connection} conn 
- * @param {import("./database/database.js").Location[]} locations 
- * @param {Date} date 
+ * @param {ForecastProviderType} provider 
+ * @param {number} locationId
  */
+async function getAccuracyData(provider, locationId) {
+    // select accuracy data for the past 7 days
+    const sql = format("SELECT\n" +
+        "forecasts.timestamp AS date,\n" +
+        "hour,\n" +
+        "forecasts.temperature AS temperaturePredicted,\n" +
+        "ROUND(observations.temperature) AS temperatureObserved,\n" +
+        "ABS(forecasts.temperature - ROUND(observations.temperature)) AS temperatureAccuracy,\n" +
+        "forecasts.precipitation / 100 AS precipitationPredicted,\n" +
+        "CAST(observations.precipitation AS SIGNED) AS precipitationObserved,\n" +
+        "1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2) AS precipitationAccuracy,\n" +
+        "forecasts.wind_speed as windSpeedPredicted,\n" +
+        "observations.wind_speed as windSpeedObserved,\n" +
+        "ABS(forecasts.wind_speed - observations.wind_speed) AS windSpeedAccuracy,\n" +
+        "forecasts.humidity as humidityPredicted,\n" +
+        "observations.humidity as humidityObserved,\n" +
+        "ABS(forecasts.humidity - observations.humidity) AS humidityAccuracy\n" +
+        "FROM forecasts\n" +
+        "INNER JOIN locations ON forecasts.location=locations.id\n" +
+        "INNER JOIN observations ON observations.station_id=locations.station_id AND observations.timestamp=forecasts.timestamp\n" +
+        "WHERE provider=? AND location=? AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY) AND HOUR(forecasts.timestamp)%3=0\n" +
+        "ORDER BY date, hour DESC;", [provider, locationId]);
+    const conn = createConnection(MY_SQL_CONFIG);
+    conn.connect();
+    const { results: rows } = await query(conn, sql);
+    conn.end();
+    // format data
+    const result = [
+        {
+            label: "Temperature",
+            key: "temperature",
+            data: []
+        },
+        {
+            label: "Precipitation",
+            key: "precipitation",
+            data: []
+        },
+        {
+            label: "Wind Speed",
+            key: "windSpeed",
+            data: []
+        },
+        {
+            label: "Humidity",
+            key: "humidity",
+            data: []
+        }
+    ]
+    // iterate through returned rows
+    let i = 0;
+    let j;
+    while (i < rows.length) {
+        // iterate through each measurement
+        for (const { key, data } of result) {
+            // set timestamp and observed from the first row
+            const date = rows[i].date;
+            const timestamp = date.toISOString();
+            const observed = rows[i][key + "Observed"];
+            const forecasts = [];
+            // iterate through every forecast for the timestamp (query is ordered by timestamp so they will all be together)
+            j = i;
+            while (j < rows.length && rows[j].date.getTime() === date.getTime()) {
+                const row = rows[j];
+                forecasts.push({
+                    hour: row.hour,
+                    value: row[key + "Predicted"]
+                });
+                j++;
+            }
+            data.push({ timestamp, observed, forecasts });
+        }
+        // point i row after the last row with the same timestamp
+        i = j + 1;
+    }
+    // delete key from items (not wanted in response)
+    for (const item of result) {
+        delete item.key;
+    }
+    return result;
+}
+
+// save missed stations on the disk so they are not lost when restarted
+
+const PATH_TO_CACHE = "./cache.json";
+
+function savedMissedStations(data) {
+    writeFileSync(PATH_TO_CACHE, JSON.stringify(data));
+}
+
+function getMissedStations() {
+    return existsSync(PATH_TO_CACHE) ? JSON.parse(readFileSync(PATH_TO_CACHE).toString()) : {};
+}
+
 async function collectObservations(conn, locations, date) {
     // NOTE: Observations are currently collected from NWS from "/station/observations" for the closest valid station
     // to a location. Observations are frequently not present for the previous hour when observed so missed stations
     // are stored to be collected in the next cycle. These observations are also typically not on the hour exactly so
-    // the observed value is actually from some time after the specified date.
-    // The main issue with this is that the measured precipitation is cumulative over the last hour so if the observation
-    // was not collected exactly at the end of the hour period, it will overlap with the previous one and potentially be
-    // inaccurate to compare with the forecast.
+    // the observed value is actually from some time after the specified date. The issue with this is that the measured
+    // precipitation is cumulative over the last hour so if the observation was not collected exactly at the end of the
+    // hour period, it will overlap with the previous one and potentially be inaccurate to compare with the forecast.
     console.log(new Date().toLocaleString() + ":", "BEGIN COLLECT OBSERVATIONS");
     // collect from one hour ago since the observation should be during the hour
     date = new Date(date.getTime());
     date.setHours(date.getHours() - 1);
     // collect any missed observations
-    for (const [id, { stationId, date, expires }] of Object.entries(missedStations)) {
-        if (date >= expires) {
+    const missedStations = getMissedStations();
+    for (const [id, { stationId, date: timestamp, expires }] of Object.entries(missedStations)) {
+        const collectionDate = new Date(timestamp);
+        if (date.getTime() >= Date.parse(expires)) {
             // delete expired observations
             delete missedStations[id];
             continue;
         }
-        const start = new Date(date.getTime() - 1);
-        const end = new Date(date.getTime());
-        start.setHours(date.getHours() - 1);
-        end.setHours(date.getHours());
+        const start = new Date(collectionDate.getTime() - 1);
+        const end = new Date(collectionDate.getTime());
+        start.setHours(collectionDate.getHours() - 1);
+        end.setHours(collectionDate.getHours());
         try {
             const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
             if (features.length > 0) {
                 const observation = features[0].properties;
                 observation.timestamp = start.toISOString();
-                await insertObservation(conn, observation, date);
+                await insertObservation(conn, observation, collectionDate);
                 delete missedStations[id];
             }
         } catch (e) {
@@ -131,6 +287,7 @@ async function collectObservations(conn, locations, date) {
             }
         }
     }
+    savedMissedStations(missedStations);
     console.log(new Date().toLocaleString() + ":", "END COLLECT OBSERVATIONS");
 }
 
@@ -147,7 +304,7 @@ async function collectForecasts(conn, locations, date) {
                     // retry in case of connection errors
                     attempt++;
                     try {
-                        data = await provider.fn(lat, lng, location);
+                        data = await provider.getForecasts(lat, lng);
                     } catch (e) {
                         console.error(`Forecast collection from ${provider.name} failed attempt ${attempt}/5:`, e);
                     }
@@ -182,12 +339,7 @@ async function initiateCollection() {
             setTimeout(async () => {
                 n++;
                 // create mysql connection
-                const conn = createConnection({
-                    host: "localhost",
-                    user: "root",
-                    password: process.env.MY_SQL_PASSWORD,
-                    database: "weather_advisor"
-                });
+                const conn = createConnection(MY_SQL_CONFIG);
                 conn.connect();
                 // get locations
                 const { results: locations } = await query(conn, "SELECT * FROM locations;");
@@ -207,5 +359,8 @@ async function initiateCollection() {
 }
 
 export {
+    getLocation,
+    getProviderSummaries,
+    getAccuracyData,
     initiateCollection
 };
