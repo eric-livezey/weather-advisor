@@ -42,17 +42,46 @@
             <h2 id="location-heading" class="location-heading hidden"></h2>
 
             <div id="content" class="frames-container hidden">
-                <div id="frames"></div>
-                <div class="chart-container hide">
-                    <div class="chart-placeholder">📊 Chart will appear here</div>
-                </div>
+                <div id="frames" class="frames"></div></div>
+            <div id="chart-container"class="chart-container hide">
+                <div id="results-frame" class = "frame"></div>
+                <div id= "selectionContainer" class = "selectionContainer"><select id="stat-selection" class="selection">
+                    <option value="Temperature">Temperature</option>
+                    <option value="Humidity">Humidity</option>
+                    <option value="Precipitation">Precipitation</option>
+                    <option value="Wind Speed">Wind Speed</option>
+                </select>
+                <select id="hour-selection" class="selection">
+                    <option value="-3">3</option>
+                    <option value="-6">6</option>
+                    <option value="-9">9</option>
+                    <option value="-12">12</option>
+                    <option value="-15">15</option>
+                    <option value="-18">18</option>
+                    <option value="-21">21</option>
+                    <option value="-24">24</option>
+                    <option value="-27">27</option>
+                    <option value="-30">30</option>
+                    <option value="-33">33</option>
+                    <option value="-36">36</option>
+                    <option value="-39">39</option>
+                    <option value="-42">42</option>
+                    <option value="-45">45</option>
+                    <option value="-48">48</option>
+                </select>
             </div>
+                
+                <div class="chart-placeholder">📊 Chart will appear here</div>
+            </div>   
+            
         </div>
         <footer class="footer">
             <p>&copy; Weather Advisor 2025</p>
         </footer>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/frame-handler.js"></script>
+    
 </body>
 
 </html>

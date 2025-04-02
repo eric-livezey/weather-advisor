@@ -2,6 +2,11 @@ const input = document.getElementById("location-input");
 const locationHeading = document.getElementById("location-heading");
 const content = document.getElementById("content");
 const frameContainer = document.getElementById("frames");
+const statSelection = document.getElementById("stat-selection");
+const hourSelection = document.getElementById("hour-selection");
+const chartContainer = document.getElementById("chart-container");
+const chartPlaceholder = document.querySelector(".chart-placeholder");
+const resultsFrame = document.getElementById("results-frame")
 const serviceFrames = [];
 
 input.addEventListener("change", async event => {
@@ -38,6 +43,7 @@ input.addEventListener("change", async event => {
         input.classList.remove("is-active");
         content.classList.add("hidden");
         locationHeading.classList.add("hidden");
+        chartContainer.classList.add("hide")
         setTimeout(() => {
             while (serviceFrames.length > 0) {
                 serviceFrames.pop().remove();
@@ -52,10 +58,95 @@ input.addEventListener("change", async event => {
  */
 async function handleFrameClick(event) {
     const frame = event.currentTarget;
-    frameContainer.classList.add("hide");
+    content.classList.add("hide");
+    chartContainer.classList.remove("hide");
+    
     const name = frame.dataset.name;
     const res = await fetch("/api/forecast/services/" + encodeURIComponent(name));
     const data = await res.json();
+    resultsFrame.innerText = data.service;
+    resultsFrame.classList.remove("frame:hover");
     console.log(data);
-    // Display graph and hide frames based on frame content
+    updateData()
 }
+async function updateData() {
+    try {
+        const res = await fetch("data.json");
+        if (!res.ok) throw new Error(`Failed to load data.json: ${res.statusText}`);
+
+        const data = await res.json();
+        if (!data || !data.data) {
+            console.error("Invalid or missing data in data.json");
+            return;
+        }
+        const selectedStat = statSelection.value;
+        const selectedHour = parseInt(hourSelection.value, 10); 
+
+        const statData = data.data.find(entry => entry.label === selectedStat);
+        if (!statData) {
+            chartPlaceholder.innerHTML ="Selected statistic not found in data.json";
+            return;
+        }
+
+        const timestamps = [];
+        const observedValues = [];
+        const forecastedValues = [];
+
+
+        statData.data.forEach(entry => {
+            const forecast = entry.forecasts.find(f => f.hour === selectedHour); 
+            if (forecast) {
+                const timestamp = new Date(entry.timestamp).toLocaleString();
+                timestamps.push(timestamp);
+                observedValues.push(entry.observed);
+                forecastedValues.push(forecast.value);
+            }
+        });
+
+        renderChart(timestamps, observedValues, forecastedValues, selectedStat);
+    } catch (error) {
+        console.error("Error in handleFrameClick:", error);
+    }
+}
+
+function renderChart(labels, observedData, forecastData, stat) {    
+    const ctx = document.createElement("canvas");
+    chartPlaceholder.innerHTML = ""; 
+    chartPlaceholder.appendChild(ctx); 
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,  
+            datasets: [
+                {
+                    label: "Observed " + stat,
+                    data: observedData, 
+                    borderColor: "#FF0000",
+                    borderWidth: 2,
+                    fill: false
+                },
+                {
+                    label: "Forecasted " + stat,
+                    data: forecastData, 
+                    borderColor: "#0000FF",
+                    borderWidth: 2,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: "Time" } },
+                y: { title: { display: true, text: stat } }
+            }
+        }
+    });
+
+    document.getElementById("results-frame").addEventListener("click", handleFrameClick);
+    statSelection.addEventListener("change", updateData);
+    hourSelection.addEventListener("change", updateData);
+}
+

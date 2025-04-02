@@ -115,6 +115,7 @@ body {
 .frames-container {
     display: flex;
     margin-top: 2rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
@@ -127,7 +128,18 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: opacity 400ms ease-out;
 }
-
+.frames{
+    display: flex;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 1.25rem;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 .frame {
     flex: 1 1 18%;
     max-width: 230px;
@@ -152,15 +164,40 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 300px;
-    height: 200px;
-    margin-left: 3rem;
+    width: 95vw;
+    height: 20rem;
+    gap: .25rem;
+    margin-bottom: 3rem;
     border: 1px solid #000;
     border-radius: 1.25rem;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.results-frame{
+    flex: 1 1 18%;
+    max-width: 230px;
+    min-width: 180px;
+    top: 20rem;
+    height: auto;
+    padding: 1.25rem;
+    border: 1px solid #000;
+    border-radius: 1.25rem;
+    background-color: #fff;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
 
+.selectionContainer{
+    flex-direction: column;
+}
+.chart-placeholder{
+    width: 35rem;
+    height: 20rem;
+}
+.selection{
+    display:flex;
+}
 .hide {
     display: none;
 }
