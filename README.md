@@ -1,6 +1,7 @@
 Weather Advisor 
 
 What the project should do?
+
 The Weather Advisor provides data on the weather accuracy by using and comparing different weather forecast services based on the given location. 
 
 Why the project is useful?
