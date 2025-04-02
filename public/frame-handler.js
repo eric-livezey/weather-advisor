@@ -19,36 +19,46 @@ input.addEventListener("change", async event => {
     if (event.target.value) {
         const address = event.target.value;
         const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
-        const result = await response.json();
-        clearServices();
-        locationHeading.innerText = `${result.address || "Invalid Address"}`;
-        for (const service of result.services) {
-            const container = document.createElement("div");
-            container.classList.add("frame");
-            const header = document.createElement("h3");
-            container.dataset.name = service.name;
-            container.dataset.provider = service.id;
-            container.dataset.location = result.id;
-            header.classList.add("frame__heading");
-            header.innerText = service.name;
-            header.tabIndex = -1;
-            container.append(header);
-            for (const data of service.summary) {
-                const { label, value } = data;
-                const el = document.createElement("p");
-                el.classList.add("frame__value");
-                el.innerText = `${label}: ${value}`;
-                container.append(el);
+        if (response.ok) {
+            const result = await response.json();
+            clearServices();
+            locationHeading.innerText = `${result.address || "Invalid Address"}`;
+            for (const service of result.services) {
+                const container = document.createElement("div");
+                container.classList.add("frame");
+                const header = document.createElement("h3");
+                container.dataset.name = service.name;
+                container.dataset.provider = service.id;
+                container.dataset.location = result.id;
+                header.classList.add("frame__heading");
+                header.innerText = service.name;
+                container.append(header);
+                for (const data of service.summary) {
+                    const { label, value } = data;
+                    const el = document.createElement("p");
+                    el.classList.add("frame__value");
+                    el.innerText = `${label}: ${value}`;
+                    container.append(el);
+                }
+                container.addEventListener("click", handleFrameClick)
+                frameContainer.append(container);
+                serviceFrames.push(container);
             }
-            container.addEventListener("click", handleFrameClick)
-            frameContainer.append(container);
-            serviceFrames.push(container);
+            input.classList.add("is-active");
+            locationHeading.classList.remove("hidden");
+            frameContainer.classList.remove("hide");
+            detailsContainer.classList.add("hide");
+            content.classList.remove("hidden");
+        } else {
+            locationHeading.innerText = "Invalid Location";
+            input.classList.add("is-active");
+            locationHeading.classList.remove("hidden");
+            content.classList.add("hidden");
+            setTimeout(() => {
+                detailsContainer.classList.add("hide");
+                clearServices();
+            }, 400);
         }
-        input.classList.add("is-active");
-        locationHeading.classList.remove("hidden");
-        frameContainer.classList.remove("hide");
-        detailsContainer.classList.add("hide");
-        content.classList.remove("hidden");
     } else {
         input.classList.remove("is-active");
         content.classList.add("hidden");
