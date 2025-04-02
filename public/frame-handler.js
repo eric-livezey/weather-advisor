@@ -40,21 +40,16 @@ input.addEventListener("change", async event => {
         input.classList.add("is-active");
         content.classList.remove("hidden");
         locationHeading.classList.remove("hidden");
-        frameContainer.classList.remove("hide");
     } else {
         input.classList.remove("is-active");
         content.classList.add("hidden");
         locationHeading.classList.add("hidden");
         chartContainer.classList.add("hide")
         setTimeout(() => {
-            while (serviceFrames.length > 0) {
-                serviceFrames.pop().remove();
-            }
+            detail.classList.add("hide");
         }, 400);
     }
 });
-
-let data;
 
 /**
  * 
@@ -64,25 +59,31 @@ async function handleFrameClick(event) {
     const frame = event.currentTarget;
     content.classList.add("hide");
     chartContainer.classList.remove("hide");
-    const { provider, location, name } = frame.dataset;
-    const res = await fetch(`/api/forecast/accuracy?provider=${encodeURIComponent(provider)}&location=${encodeURIComponent(location)}`);
-    data = await res.json();
-    resultsFrame.innerText = name;
+    
+    const name = frame.dataset.name;
+    const res = await fetch("/api/forecast/services/" + encodeURIComponent(name));
+    const data = await res.json();
+    resultsFrame.innerText = data.service;
     resultsFrame.classList.remove("frame:hover");
+    console.log(data);
     updateData()
 }
 async function updateData() {
     try {
+        const res = await fetch("data.json");
+        if (!res.ok) throw new Error(`Failed to load data.json: ${res.statusText}`);
+
+        const data = await res.json();
         if (!data || !data.data) {
             console.error("Invalid or missing data in data.json");
             return;
         }
         const selectedStat = statSelection.value;
-        const selectedHour = parseInt(hourSelection.value, 10);
+        const selectedHour = parseInt(hourSelection.value, 10); 
 
         const statData = data.data.find(entry => entry.label === selectedStat);
         if (!statData) {
-            chartPlaceholder.innerHTML = "Selected statistic not found in data.json";
+            chartPlaceholder.innerHTML ="Selected statistic not found in data.json";
             return;
         }
 
@@ -92,7 +93,7 @@ async function updateData() {
 
 
         statData.data.forEach(entry => {
-            const forecast = entry.forecasts.find(f => f.hour === selectedHour);
+            const forecast = entry.forecasts.find(f => f.hour === selectedHour); 
             if (forecast) {
                 const timestamp = new Date(entry.timestamp).toLocaleString();
                 timestamps.push(timestamp);
@@ -107,26 +108,26 @@ async function updateData() {
     }
 }
 
-function renderChart(labels, observedData, forecastData, stat) {
+function renderChart(labels, observedData, forecastData, stat) {    
     const ctx = document.createElement("canvas");
-    chartPlaceholder.innerHTML = "";
-    chartPlaceholder.appendChild(ctx);
+    chartPlaceholder.innerHTML = ""; 
+    chartPlaceholder.appendChild(ctx); 
 
     new Chart(ctx, {
         type: "line",
         data: {
-            labels: labels,
+            labels: labels,  
             datasets: [
                 {
                     label: "Observed " + stat,
-                    data: observedData,
+                    data: observedData, 
                     borderColor: "#FF0000",
                     borderWidth: 2,
                     fill: false
                 },
                 {
                     label: "Forecasted " + stat,
-                    data: forecastData,
+                    data: forecastData, 
                     borderColor: "#0000FF",
                     borderWidth: 2,
                     fill: false
@@ -138,7 +139,7 @@ function renderChart(labels, observedData, forecastData, stat) {
             maintainAspectRatio: false,
             scales: {
                 x: { title: { display: true, text: "Time" } },
-                y: { title: { display: true, text: stat }, max: stat === "Precipitation" ? 1 : undefined }
+                y: { title: { display: true, text: stat } }
             }
         }
     });
