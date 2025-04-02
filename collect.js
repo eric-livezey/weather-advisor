@@ -93,7 +93,7 @@ async function getProviderSummaries(locationId) {
         // calculate accuracies
         const sql = format("SELECT\n" +
             "TRUNCATE(AVG(ABS(forecasts.temperature - ROUND(observations.temperature))), 2) as temperature,\n" +
-            "TRUNCATE(AVG(1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2)), 2) AS precipitation,\n" +
+            "TRUNCATE(AVG(1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2)), 2) * 100 AS precipitation,\n" +
             "TRUNCATE(AVG(ABS(forecasts.wind_speed - observations.wind_speed)), 2) AS windSpeed,\n" +
             "TRUNCATE(AVG(ABS(forecasts.humidity - observations.humidity)), 2) AS humidity\n" +
             "FROM forecasts\n" +
