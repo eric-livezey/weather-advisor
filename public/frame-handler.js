@@ -4,16 +4,23 @@ const content = document.getElementById("content");
 const frameContainer = document.getElementById("frames");
 const statSelection = document.getElementById("stat-selection");
 const hourSelection = document.getElementById("hour-selection");
+const detailsContainer = document.getElementById("details-container");
 const chartContainer = document.getElementById("chart-container");
-const chartPlaceholder = document.querySelector(".chart-placeholder");
 const resultsFrame = document.getElementById("results-frame")
 const serviceFrames = [];
+
+function clearServices() {
+    while (serviceFrames.length > 0) {
+        serviceFrames.pop().remove();
+    }
+}
 
 input.addEventListener("change", async event => {
     if (event.target.value) {
         const address = event.target.value;
         const response = await fetch(`/api/forecast/services?address=${encodeURIComponent(address)}`);
         const result = await response.json();
+        clearServices();
         locationHeading.innerText = `${result.address || "Invalid Address"}`;
         for (const service of result.services) {
             const container = document.createElement("div");
@@ -38,21 +45,25 @@ input.addEventListener("change", async event => {
             serviceFrames.push(container);
         }
         input.classList.add("is-active");
-        content.classList.remove("hidden");
         locationHeading.classList.remove("hidden");
         frameContainer.classList.remove("hide");
+        detailsContainer.classList.add("hide");
+        content.classList.remove("hidden");
     } else {
         input.classList.remove("is-active");
         content.classList.add("hidden");
         locationHeading.classList.add("hidden");
-        chartContainer.classList.add("hide")
         setTimeout(() => {
-            while (serviceFrames.length > 0) {
-                serviceFrames.pop().remove();
-            }
+            detailsContainer.classList.add("hide");
+            clearServices();
         }, 400);
     }
 });
+
+function back() {
+    detailsContainer.classList.add("hide");
+    frameContainer.classList.remove("hide");
+}
 
 let data;
 
@@ -62,13 +73,12 @@ let data;
  */
 async function handleFrameClick(event) {
     const frame = event.currentTarget;
-    content.classList.add("hide");
-    chartContainer.classList.remove("hide");
+    frameContainer.classList.add("hide");
+    detailsContainer.classList.remove("hide");
     const { provider, location, name } = frame.dataset;
     const res = await fetch(`/api/forecast/accuracy?provider=${encodeURIComponent(provider)}&location=${encodeURIComponent(location)}`);
     data = await res.json();
     resultsFrame.innerText = name;
-    resultsFrame.classList.remove("frame:hover");
     updateData()
 }
 async function updateData() {
@@ -108,10 +118,8 @@ async function updateData() {
 }
 
 function renderChart(labels, observedData, forecastData, stat) {
+    chartContainer.innerHTML = "";
     const ctx = document.createElement("canvas");
-    chartPlaceholder.innerHTML = "";
-    chartPlaceholder.appendChild(ctx);
-
     new Chart(ctx, {
         type: "line",
         data: {
@@ -142,8 +150,5 @@ function renderChart(labels, observedData, forecastData, stat) {
             }
         }
     });
-
-    document.getElementById("results-frame").addEventListener("click", handleFrameClick);
-    statSelection.addEventListener("change", updateData);
-    hourSelection.addEventListener("change", updateData);
+    chartContainer.append(ctx);
 }
