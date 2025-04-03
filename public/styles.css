@@ -162,6 +162,8 @@ body {
     border-radius: .25rem;
     background-color: #fff;
     text-align: center;
+    font-weight: 700;
+    font-size: 1.17em;
 }
 
 .selectionContainer {
