@@ -8,6 +8,15 @@ const port = 3000;
 
 app.disable("x-powered-by");
 app.use(express.static("public"));
+app.get("/", (_, res) => {
+    res.sendFile("home.html", { root: "./pages" });
+});
+app.get("/home", (_, res) => {
+    res.status(301).location("/").send();
+});
+app.get("/faq", (_, res) => {
+    res.sendFile("faq.html", { root: "./pages" });
+});
 
 app.get("/api/forecast/services", async (req, res) => {
     if (req.query.address) {

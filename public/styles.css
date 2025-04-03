@@ -166,7 +166,7 @@ body {
     font-size: 1.17em;
 }
 
-.selectionContainer {
+.selection-container {
     display: flex;
     flex-direction: column;
     width: 15rem;

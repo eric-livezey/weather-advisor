@@ -20,7 +20,7 @@
                             <a class="global-header__navigation-link" href="/">Home</a>
                         </li>
                         <li class="global-header__navigation-item">
-                            <a class="global-header__navigation-link" href="/faq.html">F.A.Q.</a>
+                            <a class="global-header__navigation-link" href="/faq">F.A.Q.</a>
                         </li>
                         <li class="global-header__navigation-item">
                             <a class="global-header__navigation-icon"
@@ -42,10 +42,10 @@
             <div id="content" class="frames-container hidden">
                 <div id="frames" class="frames"></div>
                 <div id="details-container" class="details-container hide">
-                    <div id="selectionContainer" class="selectionContainer">
+                    <div class="selection-container">
                         <div id="results-frame" class="results-frame"></div>
                         <div class="form-element">
-                            <label class="form-element__label">Statistic</label>
+                            <label class="form-element__label" for="stat-selection">Statistic</label>
                             <select id="stat-selection" class="selection" onchange="updateData()">
                                 <option value="Temperature">Temperature</option>
                                 <option value="Humidity">Humidity</option>
@@ -54,7 +54,7 @@
                             </select>
                         </div>
                         <div class="form-element">
-                            <label class="form-element__label">Hour</label>
+                            <label class="form-element__label" for="hour-selection">Hour</label>
                             <select id="hour-selection" class="selection" onchange="updateData()">
                                 <option value="-3">3</option>
                                 <option value="-6">6</option>
@@ -86,7 +86,7 @@
         </footer>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/frame-handler.js"></script>
+    <script src="/index.js"></script>
 
 </body>
 
