@@ -134,7 +134,7 @@ async function getAccuracyData(provider, locationId) {
         "ABS(forecasts.temperature - ROUND(observations.temperature)) AS temperatureAccuracy",
         "forecasts.precipitation / 100 AS precipitationPredicted",
         "CAST(observations.precipitation AS SIGNED) AS precipitationObserved",
-        "1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2) AS precipitationAccuracy",
+        "100 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2) * 100 AS precipitationAccuracy",
         "forecasts.wind_speed as windSpeedPredicted",
         "observations.wind_speed as windSpeedObserved",
         "ABS(forecasts.wind_speed - observations.wind_speed) AS windSpeedAccuracy",

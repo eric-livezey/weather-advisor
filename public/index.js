@@ -120,7 +120,7 @@ async function updateData() {
                 timestamps.push(timestamp);
                 observedValues.push(entry.observed);
                 forecastedValues.push(forecast.value);
-                if (forecast.accuracy) {
+                if (forecast.accuracy != null) {
                     accuracySum += forecast.accuracy;
                     accuracyCount++;
                 }
@@ -132,7 +132,7 @@ async function updateData() {
             if (statData.prefix) {
                 accuracyText += statData.prefix;
             }
-            accuracyText += (accuracySum / accuracyCount).toFixed(2);
+            accuracyText += Math.trunc(accuracySum / accuracyCount * 100) / 100;
             if (statData.suffix) {
                 accuracyText += statData.suffix;
             }
