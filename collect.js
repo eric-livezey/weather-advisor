@@ -166,23 +166,30 @@ async function getAccuracyData(provider, locationId) {
     const result = [
         {
             label: "Temperature",
-            key: "temperature",
-            data: []
+            data: [],
+            prefix: "±",
+            suffix: "°F",
+            key: "temperature"
         },
         {
             label: "Precipitation",
-            key: "precipitation",
-            data: []
+            data: [],
+            suffix: "%",
+            key: "precipitation"
         },
         {
             label: "Wind Speed",
-            key: "windSpeed",
-            data: []
+            data: [],
+            prefix: "±",
+            suffix: " MPH",
+            key: "windSpeed"
         },
         {
             label: "Humidity",
-            key: "humidity",
-            data: []
+            data: [],
+            prefix: "±",
+            suffix: "%",
+            key: "humidity"
         }
     ]
     // iterate through returned rows
@@ -202,7 +209,8 @@ async function getAccuracyData(provider, locationId) {
                 const row = rows[j];
                 forecasts.push({
                     hour: row.hour,
-                    value: row[key + "Predicted"]
+                    value: row[key + "Predicted"],
+                    accuracy: row[key + "Accuracy"]
                 });
                 j++;
             }

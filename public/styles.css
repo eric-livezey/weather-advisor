@@ -73,7 +73,7 @@ body {
 .layout-content {
     position: absolute;
     top: 5rem;
-    width: 100%;
+    min-width: 100%;
     height: calc(100% - 5rem);
 }
 
@@ -114,10 +114,8 @@ body {
 
 .frames-container {
     display: flex;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin: 2rem 5%;
     justify-content: center;
-    max-width: 90%;
     padding: 1.25rem;
     border: 1px solid #000;
     border-radius: 1.25rem;
@@ -140,6 +138,8 @@ body {
     border-radius: 1.25rem;
     background-color: #fff;
     text-align: center;
+    user-select: none;
+    cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
 }
@@ -216,6 +216,10 @@ body {
     opacity: 1;
 }
 
+.m-top_small {
+    margin-top: .25rem;
+}
+
 .footer {
     display: flex;
     align-items: center;
@@ -226,16 +230,6 @@ body {
     text-align: center;
     background: #fff;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, .07);
-}
-
-.service-list_container {
-    border: 1px solid #000;
-    margin-block-start: 10rem;
-    margin-inline: 5rem;
-    width: calc(100% - 10rem);
-    height: 10rem;
-    min-width: min-content;
-    transition: opacity .4s;
 }
 
 .icon {

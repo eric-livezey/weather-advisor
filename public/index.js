@@ -2,6 +2,7 @@ const input = document.getElementById("location-input");
 const locationHeading = document.getElementById("location-heading");
 const content = document.getElementById("content");
 const frameContainer = document.getElementById("frames");
+const statAccuracy = document.getElementById("stat-accuracy");
 const statSelection = document.getElementById("stat-selection");
 const hourSelection = document.getElementById("hour-selection");
 const detailsContainer = document.getElementById("details-container");
@@ -94,7 +95,7 @@ async function handleFrameClick(event) {
 async function updateData() {
     try {
         if (!data || !data.data) {
-            console.error("Invalid or missing data in data.json");
+            console.error("Invalid or missing data.");
             return;
         }
         const selectedStat = statSelection.value;
@@ -102,24 +103,43 @@ async function updateData() {
 
         const statData = data.data.find(entry => entry.label === selectedStat);
         if (!statData) {
-            chartPlaceholder.innerHTML = "Selected statistic not found in data.json";
+            chartPlaceholder.innerHTML = "Selected statistic not found";
             return;
         }
 
         const timestamps = [];
         const observedValues = [];
         const forecastedValues = [];
+        let accuracySum = 0;
+        let accuracyCount = 0;
 
-
-        statData.data.forEach(entry => {
+        for (entry of statData.data) {
             const forecast = entry.forecasts.find(f => f.hour === selectedHour);
             if (forecast) {
                 const timestamp = new Date(entry.timestamp).toLocaleString();
                 timestamps.push(timestamp);
                 observedValues.push(entry.observed);
                 forecastedValues.push(forecast.value);
+                if (forecast.accuracy) {
+                    accuracySum += forecast.accuracy;
+                    accuracyCount++;
+                }
             }
-        });
+        };
+
+        let accuracyText = "";
+        if (accuracyCount > 0) {
+            if (statData.prefix) {
+                accuracyText += statData.prefix;
+            }
+            accuracyText += (accuracySum / accuracyCount).toFixed(2);
+            if (statData.suffix) {
+                accuracyText += statData.suffix;
+            }
+        } else {
+            accuracyText = "N/A";
+        }
+        statAccuracy.innerText = accuracyText;
 
         renderChart(timestamps, observedValues, forecastedValues, selectedStat);
     } catch (error) {
