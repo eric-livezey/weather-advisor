@@ -45,7 +45,6 @@ app.get("/api/forecast/services", async (req, res) => {
 });
 
 app.get("/api/forecast/accuracy", async (req, res) => {
-    // TODO: Return a representation of the accuracy of a particular service
     if (req.query.provider && req.query.location) {
         const { provider, location } = req.query;
         try {
@@ -62,7 +61,7 @@ app.get("/api/forecast/accuracy", async (req, res) => {
             res.status(500).send();
         }
     } else {
-        // no location (bad request)
+        // no provider and/or location (bad request)
         res.status(400).send();
     }
 });
