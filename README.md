@@ -1,21 +1,16 @@
-# Weather Advisor 
+# Weather Advisor
 
-## What the project should do?
+This is repository for the Weather Advisor project.
 
-The Weather Advisor provides data on the weather accuracy by using and comparing different weather forecast services based on the given location. 
+## What is Weather Advisor?
 
-## Why the project is useful?
+Weather Advisor is a website which intends to inform users about the accuracy of different weather services. This application collects forecasts from various weather services and observations from the National Weather Service over time and stores this data. It then uses this data to show users a visual representation of the accuracy of services over time by comparing different forecasts to the actual observed weather data.
 
-The Weather Advisor is useful because it provides the most accurate weather data (temperature, wind speed, etc) for users in order to prevent the users from going outside and seeing an inaccurate weather report. 
+## Using the Website
 
-## How the users can start the project?
+After navigating to the site, you should be prompted to enter an Address or Zip Code into the search bar. If you do that and press enter, the site will show you a list of weather services and a summary of their accuracy assuming that there is data for that location.
 
-Users can start this project by going to the website, and in the search bar, the users will type the location they want to receive the weather data for. There is a limitation with the Weather Advisor, which is that the Weather Advisor only works for 10 most populous cities in the Northeastern United States. 
+> [!NOTE]
+> Due to rate limit limitations on API requests, Weather Advisor currently only supports the 10 most populous cities in the Northeastern United States.
 
-## Who contributes to this project?
-
-The people that contributed to the Weather Advisor are Christler Murat, Eric Livezey, and Ayden Palmer. 
-
-## Questions?
-
-There is a FAQ page if the user has any questions about the Weather Advisor. 
+If you then click on a service, you should see a graph of the temperature and options to choose a different statistic or a different number of hours. The hour refers to the number of hours before a particular timestamp that the forecasts were collected on. You then can simply play around with looking at different stastics and services from there.
