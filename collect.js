@@ -126,29 +126,41 @@ async function getProviderSummaries(locationId) {
  */
 async function getAccuracyData(provider, locationId) {
     // select accuracy data for the past 7 days
-    const sql = format("SELECT\n" +
-        "forecasts.timestamp AS date,\n" +
-        "hour,\n" +
-        "forecasts.temperature AS temperaturePredicted,\n" +
-        "ROUND(observations.temperature) AS temperatureObserved,\n" +
-        "ABS(forecasts.temperature - ROUND(observations.temperature)) AS temperatureAccuracy,\n" +
-        "forecasts.precipitation / 100 AS precipitationPredicted,\n" +
-        "CAST(observations.precipitation AS SIGNED) AS precipitationObserved,\n" +
-        "1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2) AS precipitationAccuracy,\n" +
-        "forecasts.wind_speed as windSpeedPredicted,\n" +
-        "observations.wind_speed as windSpeedObserved,\n" +
-        "ABS(forecasts.wind_speed - observations.wind_speed) AS windSpeedAccuracy,\n" +
-        "forecasts.humidity as humidityPredicted,\n" +
-        "observations.humidity as humidityObserved,\n" +
-        "ABS(forecasts.humidity - observations.humidity) AS humidityAccuracy\n" +
-        "FROM forecasts\n" +
-        "INNER JOIN locations ON forecasts.location=locations.id\n" +
-        "INNER JOIN observations ON observations.station_id=locations.station_id AND observations.timestamp=forecasts.timestamp\n" +
-        "WHERE provider=? AND location=? AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY) AND HOUR(forecasts.timestamp)%3=0\n" +
-        "ORDER BY date, hour DESC;", [provider, locationId]);
+    const fields = [
+        "forecasts.timestamp AS date",
+        "hour",
+        "forecasts.temperature AS temperaturePredicted",
+        "ROUND(observations.temperature) AS temperatureObserved",
+        "ABS(forecasts.temperature - ROUND(observations.temperature)) AS temperatureAccuracy",
+        "forecasts.precipitation / 100 AS precipitationPredicted",
+        "CAST(observations.precipitation AS SIGNED) AS precipitationObserved",
+        "1 - POW(ABS(observations.precipitation - forecasts.precipitation / 100), 2) AS precipitationAccuracy",
+        "forecasts.wind_speed as windSpeedPredicted",
+        "observations.wind_speed as windSpeedObserved",
+        "ABS(forecasts.wind_speed - observations.wind_speed) AS windSpeedAccuracy",
+        "forecasts.humidity as humidityPredicted",
+        "observations.humidity as humidityObserved",
+        "ABS(forecasts.humidity - observations.humidity) AS humidityAccuracy"
+    ].join(", ");
+    const from = [
+        "forecasts",
+        "INNER JOIN locations ON forecasts.location=locations.id",
+        "INNER JOIN observations ON locations.station_id=observations.station_id AND forecasts.timestamp=observations.timestamp"
+    ].join(" ");
+    const where = format("provider=? AND location=? AND hour%3=0 AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY)", [provider, locationId]);
+    const orderBy = "date, hour DESC";
+    const rows = [];
+    const limit = 10000;
     const conn = createConnection(MY_SQL_CONFIG);
     conn.connect();
-    const { results: rows } = await query(conn, sql);
+    const { results: [{ count }] } = await query(conn, `SELECT COUNT(*) AS count FROM ${from} WHERE ${where};`);
+    let page = 0;
+    while (page * limit < count) {
+        const { results } = await query(conn, `SELECT ${fields} FROM ${from} WHERE ${where} ORDER BY ${orderBy} LIMIT ${page * limit}, ${limit};`);
+        rows.push(...results);
+        page++;
+    }
+    // const { results: rows } = await query(conn, sql);
     conn.end();
     // format data
     const result = [
@@ -197,7 +209,7 @@ async function getAccuracyData(provider, locationId) {
             data.push({ timestamp, observed, forecasts });
         }
         // point i row after the last row with the same timestamp
-        i = j + 1;
+        i = j;
     }
     // delete key from items (not wanted in response)
     for (const item of result) {
