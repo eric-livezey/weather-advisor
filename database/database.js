@@ -157,7 +157,8 @@ const MAPPINGS = {
                 convert: (val) => val.temp
             },
             precipitation: {
-                key: "pop"
+                key: "pop",
+                convert: (val) => Math.round(val * 100)
             },
             humidity: {
                 key: "main",
