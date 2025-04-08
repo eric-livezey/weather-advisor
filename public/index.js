@@ -159,14 +159,14 @@ function renderChart(labels, observedData, forecastData, stat) {
                 {
                     label: "Observed " + stat,
                     data: observedData,
-                    borderColor: "#FF0000",
+                    borderColor: "#DE3163",
                     borderWidth: 2,
                     fill: false
                 },
                 {
                     label: "Forecasted " + stat,
                     data: forecastData,
-                    borderColor: "#0000FF",
+                    borderColor: "#6495ED",
                     borderWidth: 2,
                     fill: false
                 }
