@@ -121,6 +121,7 @@ body {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: opacity 400ms ease-out;
+    max-width: calc(100% - 4rem);
 }
 
 .frames {
@@ -150,6 +151,8 @@ body {
 
 .details-container {
     display: flex;
+    flex-direction: row;
+    width: 100%;
     align-items: center;
     gap: .25rem;
     border-radius: 1.25rem;
@@ -192,6 +195,19 @@ body {
     border: 1px solid black;
     border-radius: .25rem;
     cursor: pointer;
+}
+
+@media(max-width: calc(52.75rem + 2px)) {
+    .frames-container {
+        width: 100%;
+    }
+    .details-container {
+        flex-direction: column-reverse;
+    }
+    .chart-container,
+    .selection-container {
+        width: 100%;
+    }
 }
 
 .button {
