@@ -168,11 +168,11 @@ body {
 
 .results-frame a {
     text-decoration: none;
-    color: #0c26ad;
+    color: #035dd3;
 }
 
 .results-frame a:active {
-    color: #8089d3;
+    color: #6aa6f5;
 }
 
 .selection-container {
