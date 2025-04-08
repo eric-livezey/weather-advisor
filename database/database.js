@@ -202,7 +202,7 @@ async function insertObservation(conn, data, date) {
     const station = data.station.substring(data.station.lastIndexOf("/") + 1);
     const timestamp = date;
     const temperature = data.temperature?.value ? celciusToFahrenheit(data.temperature.value) : null;
-    const precipitation = data.precipitationLastHour?.value ? 1 : 0;
+    const precipitation = data.precipitationLastHour?.value == null ? null : data.precipitationLastHour?.value ? 1 : 0;
     const humidity = data.relativeHumidity?.value || null;
     const windSpeed = data.windSpeed?.value ? kphToMph(data.temperature.value) : null;
     const values = [station, timestamp, temperature, precipitation, humidity, windSpeed];
