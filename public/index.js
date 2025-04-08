@@ -31,6 +31,7 @@ input.addEventListener("change", async event => {
                 container.dataset.name = service.name;
                 container.dataset.provider = service.id;
                 container.dataset.location = result.id;
+                container.dataset.url = service.url;
                 header.classList.add("frame__heading");
                 header.innerText = service.name;
                 container.append(header);
@@ -86,10 +87,10 @@ async function handleFrameClick(event) {
     const frame = event.currentTarget;
     frameContainer.classList.add("hide");
     detailsContainer.classList.remove("hide");
-    const { provider, location, name } = frame.dataset;
+    const { provider, location, name, url } = frame.dataset;
     const res = await fetch(`/api/forecast/accuracy?provider=${encodeURIComponent(provider)}&location=${encodeURIComponent(location)}`);
     data = await res.json();
-    resultsFrame.innerText = name;
+    resultsFrame.innerHTML = `<a href="${url}">${name}</a>`;
     updateData()
 }
 async function updateData() {

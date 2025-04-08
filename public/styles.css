@@ -166,6 +166,15 @@ body {
     font-size: 1.17em;
 }
 
+.results-frame a {
+    text-decoration: none;
+    color: #0c26ad;
+}
+
+.results-frame a:active {
+    color: #8089d3;
+}
+
 .selection-container {
     display: flex;
     flex-direction: column;
