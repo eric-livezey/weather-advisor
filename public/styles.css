@@ -100,7 +100,6 @@ body {
     z-index: 10;
 }
 
-
 .location-input.is-active {
     top: 10rem;
 }
@@ -205,12 +204,136 @@ body {
     cursor: pointer;
 }
 
+.button__icon {
+    width: .875rem;
+    height: .875rem;
+    fill: currentColor;
+}
+
+.button__icon_left {
+    margin-right: .5rem;
+}
+
+.button_reset {
+    font-size: inherit;
+    color: inherit;
+    line-height: inherit;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    text-align: inherit;
+}
+
 .form-element {
     text-align: left;
 }
 
 .form-element__label {
     font-size: .75rem;
+}
+
+/* Accordion */
+
+.accordion {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.accordion__list-item {
+    border-top: 1px solid #000;
+}
+
+.accordion__list-item:first-child {
+    border-top: 0
+}
+
+.accordion__summary {
+    display: flex;
+    margin: -.75rem;
+    padding: .75rem;
+    background-color: transparent;
+}
+
+.accordion__summary .dropdown-trigger .button {
+    margin-left: .75rem
+}
+
+.accordion__summary-heading {
+    margin: 0;
+    padding: 0;
+    font-weight: inherit;
+    font-size: 1em;
+    display: flex;
+    flex-grow: 1;
+    min-width: 0;
+    color: #181818;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.accordion__summary-heading .button:focus {
+    box-shadow: inset 0 0 0 2px #444;
+}
+
+.accordion__summary-action {
+    display: inline-flex;
+    flex-grow: 1;
+    align-items: center;
+    min-width: 0;
+    margin: -.75rem;
+    padding: .75rem;
+    font-weight: 700;
+}
+
+.accordion__summary-action:focus,
+.accordion__summary-action:hover {
+    color: #444;
+}
+
+.accordion__summary-action-icon {
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+}
+
+[dir=rtl] .accordion__summary-action-icon {
+    transform: rotate(90deg);
+}
+
+@media(min-width: 64em) {
+    .accordion__summary-content {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.accordion__section {
+    padding: .75rem;
+}
+
+.accordion__content {
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    height: 0
+}
+
+.is-open>.accordion__content {
+    overflow: visible;
+    visibility: visible;
+    opacity: 1;
+    height: auto;
+}
+
+.is-open>.accordion__summary {
+    margin-bottom: 0;
+}
+
+.is-open>.accordion__summary .accordion__summary-action-icon {
+    transform: rotate(0deg);
 }
 
 .hide {

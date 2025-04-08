@@ -48,44 +48,134 @@
         </header>
         <div class="page-content">
             <h1>Frequently Asked Questions</h1>
-            <h2>What Locations are Available?</h2>
-            <p>
-                Currently Weather Advisor only supports the top 10 most populous northeastern cities. These cities
-                are as follows:
-            <ul>
-                <li>New York City, New York</li>
-                <li>Philadelphia, Pennsylvania</li>
-                <li>Hempstead, New York</li>
-                <li>Washington, District of Columbia</li>
-                <li>Boston, Massachusetts</li>
-                <li>Baltimore, Maryland</li>
-                <li>Brookhaven, New York</li>
-                <li>Virginia Beach, Virginia</li>
-                <li>Islip, New York</li>
-                <li>Newark, New Jersey</li>
+
+            <ul class="accordion">
+                <li class="accordion__list-item">
+                    <section class="accordion__section">
+                        <div class="accordion__summary">
+                            <h2 class="accordion__summary-heading">
+                                <button class="button button_reset accordion__summary-action"
+                                    aria-controls="accordion-content-1" aria-expanded="false"
+                                    title="What Locations are Available?"
+                                    onclick="handleAccordionSummaryActionClick(event)">
+                                    <svg class="accordion__summary-action-icon button__icon button__icon_left"
+                                        aria-hidden="true">
+                                        <use href="/assets/icons/symbols.svg#switch"></use>
+                                    </svg>
+                                    <span class="accordion__summary-content">What Locations are Available?</span>
+                                </button>
+                            </h2>
+                        </div>
+                        <div class="accordion__content" id="accordion-content-1" hidden>
+                            <p>
+                                Currently Weather Advisor only supports the top 10 most populous northeastern cities.
+                                These cities are as follows:
+                            </p>
+                            <ul>
+                                <li>New York City, New York</li>
+                                <li>Philadelphia, Pennsylvania</li>
+                                <li>Hempstead, New York</li>
+                                <li>Washington, District of Columbia</li>
+                                <li>Boston, Massachusetts</li>
+                                <li>Baltimore, Maryland</li>
+                                <li>Brookhaven, New York</li>
+                                <li>Virginia Beach, Virginia</li>
+                                <li>Islip, New York</li>
+                                <li>Newark, New Jersey</li>
+                            </ul>
+                        </div>
+                    </section>
+                </li>
+                <li class="accordion__list-item">
+                    <section class="accordion__section">
+                        <div class="accordion__summary">
+                            <h2 class="accordion__summary-heading">
+                                <button class="button button_reset accordion__summary-action"
+                                    aria-controls="accordion-content-2" aria-expanded="false"
+                                    title="How is Precipitation Accuracy Measured?"
+                                    onclick="handleAccordionSummaryActionClick(event)">
+                                    <svg class="accordion__summary-action-icon button__icon button__icon_left"
+                                        aria-hidden="true">
+                                        <use href="/assets/icons/symbols.svg#switch"></use>
+                                    </svg>
+                                    <span class="accordion__summary-content">How is Precipitation Accuracy
+                                        Measured?</span>
+                                </button>
+                            </h2>
+                        </div>
+                        <div class="accordion__content" id="accordion-content-2" hidden>
+                            <p>
+                                Precipitation is calculated using the <a
+                                    href="https://www.wikipedia.com/wiki/Brier_score">Brier score</a>.
+                            </p>
+                        </div>
+                    </section>
+                </li>
+                <li class="accordion__list-item">
+                    <section class="accordion__section">
+                        <div class="accordion__summary">
+                            <h2 class="accordion__summary-heading">
+                                <button class="button button_reset accordion__summary-action"
+                                    aria-controls="accordion-content-3" aria-expanded="false"
+                                    title="Why is Some Data Not Present?"
+                                    onclick="handleAccordionSummaryActionClick(event)">
+                                    <svg class="accordion__summary-action-icon button__icon button__icon_left"
+                                        aria-hidden="true">
+                                        <use href="/assets/icons/symbols.svg#switch"></use>
+                                    </svg>
+                                    <span class="accordion__summary-content">Why is Some Data Not Present?</span>
+                                </button>
+                            </h2>
+                        </div>
+                        <div class="accordion__content" id="accordion-content-3" hidden>
+                            <p>
+                                Observed data is collected from the National Weather Service. Weather stations
+                                unfortunately do not collect data every single hour, so data is occasional not present.
+                            </p>
+                            <p>
+                                In the case of forecast data, it is dependent on the data provided by the services. It
+                                is rare, but occasionally services will not provide all necessary data for specific
+                                times. It is also true that the server has not maintained 100% uptime thus far. In the
+                                case that there is a large period where data is not present, it is likely because the
+                                server was offline and unable to collect it.
+                            </p>
+                        </div>
+                    </section>
+                </li>
             </ul>
-            </p>
-            <h2>How is precipitation accuracy measured?</h2>
-            <p>
-                Precipitation is calculated using the <a href="https://www.wikipedia.com/wiki/Brier_score">Brier
-                    score</a>.
-            </p>
-            <h2>Why is some data not present?</h2>
-            <p>
-                Observed data is collected from the National Weather Service. Weather stations unfortunately do not
-                collect data every single hour, so data is occasional not present.
-            </p>
-            <p>
-                In the case of forecast data, it is dependent on the data provided by the services. It is rare, but
-                occasionally services will not provide all necessary data for specific times. It is also true that the
-                server has not maintained 100% uptime thus far. In the case that there is a large period where data is
-                not present, it is likely because the server was offline and unable to collect it.
-            </p>
         </div>
         <footer class="footer">
             <p>&copy; Weather Advisor 2025</p>
         </footer>
     </section>
+    <script>
+        /** @param {HTMLButtonElement} actionElement @param {HTMLElement} sectionElement @param {HTMLDivElement} contentElement */
+        function expandAccordionSection(actionElement, sectionElement, contentElement) {
+            actionElement.ariaExpanded = "true";
+            sectionElement.classList.add("is-open");
+            contentElement.hidden = false;
+        }
+        /** @param {HTMLButtonElement} actionElement @param {HTMLElement} sectionElement @param {HTMLDivElement} contentElement */
+        function collapseAccordionSection(actionElement, sectionElement, contentElement) {
+            actionElement.ariaExpanded = "false";
+            sectionElement.classList.remove("is-open");
+            contentElement.hidden = true;
+        }
+        /** @param {MouseEvent} event */
+        function handleAccordionSummaryActionClick(event) {
+            /** @type {HTMLButtonElement} */
+            const actionElement = event.currentTarget;
+            const sectionElement = actionElement.parentElement.parentElement.parentElement;
+            const contentId = actionElement.getAttribute("aria-controls");
+            /** @type {HTMLDivElement} */
+            const contentElement = document.getElementById(contentId);
+            if (JSON.parse(actionElement.ariaExpanded)) {
+                collapseAccordionSection(actionElement, sectionElement, contentElement);
+            } else {
+                expandAccordionSection(actionElement, sectionElement, contentElement);
+            }
+        }
+    </script>
 </body>
 
 </html>
