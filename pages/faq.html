@@ -7,9 +7,9 @@
     <link href="./styles.css" rel="stylesheet">
     <style>
         .page-content {
+            display: inline-block;
             text-align: left;
-            align-items: baseline;
-            padding: 1rem;
+            padding: 0 1rem;
         }
 
         h1 {
@@ -69,6 +69,17 @@
             <p>
                 Precipitation is calculated using the <a href="https://www.wikipedia.com/wiki/Brier_score">Brier
                     score</a>.
+            </p>
+            <h2>Why is some data not present?</h2>
+            <p>
+                Observed data is collected from the National Weather Service. Weather stations unfortunately do not
+                collect data every single hour, so data is occasional not present.
+            </p>
+            <p>
+                In the case of forecast data, it is dependent on the data provided by the services. It is rare, but
+                occasionally services will not provide all necessary data for specific times. It is also true that the
+                server has not maintained 100% uptime thus far. In the case that there is a large period where data is
+                not present, it is likely because the server was offline and unable to collect it.
             </p>
         </div>
         <footer class="footer">
