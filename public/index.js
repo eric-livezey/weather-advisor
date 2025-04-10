@@ -129,6 +129,7 @@ async function updateData() {
             selectedHour = statData.periods[0]?.hour;
         }
         hourSelection.innerHTML = statData.periods.map(period => `<option value="${period.hour}">${Math.abs(period.hour)}</option>`).join("");
+        hourSelection.value = selectedHour;
         const { observations, periods, since } = statData;
         const forecasts = periods.find(period => period.hour === selectedHour)?.forecasts;
 
