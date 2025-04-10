@@ -157,7 +157,7 @@ async function getAccuracyData(provider, locationId) {
     const from = [
         "forecasts",
         "INNER JOIN locations ON forecasts.location=locations.id",
-        "RIGHT JOIN observations ON locations.station_id=observations.station_id AND forecasts.timestamp=observations.timestamp"
+        "LEFT JOIN observations ON locations.station_id=observations.station_id AND forecasts.timestamp=observations.timestamp"
     ].join(" ");
     const where = format("provider=? AND location=? AND hour%3=0 AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY)", [provider, locationId]);
     const orderBy = "hour DESC, date";
