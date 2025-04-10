@@ -1,5 +1,7 @@
 import express from "express";
 import { getAccuracyData, getLocation, getProviderSummaries, initiateCollection } from "./collect.js";
+import compression from "compression";
+import minify from "express-minify";
 
 initiateCollection();
 
@@ -7,6 +9,8 @@ const app = express();
 const port = 8080;
 
 app.disable("x-powered-by");
+app.use(compression());
+app.use(minify());
 app.use(express.static("public"));
 app.get("/", (_, res) => {
     res.sendFile("home.html", { root: "./pages" });

@@ -162,9 +162,8 @@ async function updateData() {
 }
 
 function renderChart(labels, observedData, forecastData, stat) {
-    chartContainer.innerHTML = "";
-    const ctx = document.createElement("canvas");
-    new Chart(ctx, {
+    const context = document.getElementById("chart");
+    new Chart(context, {
         type: "line",
         data: {
             labels: labels,
@@ -194,5 +193,4 @@ function renderChart(labels, observedData, forecastData, stat) {
             }
         }
     });
-    chartContainer.append(ctx);
 }

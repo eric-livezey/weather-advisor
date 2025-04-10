@@ -2,11 +2,16 @@
   "type": "module",
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",
+    "compression": "^1.8.0",
     "express": "^4.21.2",
+    "express-minify": "^1.0.0",
     "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "@types/chart.js": "^2.9.41",
+    "@types/compression": "^1.7.5",
     "@types/express": "^5.0.0",
+    "@types/express-minify": "^0.1.38",
     "@types/mysql": "^2.15.26"
   },
   "scripts": {
