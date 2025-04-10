@@ -232,11 +232,17 @@ async function getAccuracyData(provider, locationId) {
                 if (since === null || row.date > since) {
                     statistic.since = timestamp;
                 }
-                observations[timestamp] = row[key + "Observed"];
-                period.forecasts[timestamp] = {
-                    value: row[key + "Predicted"],
-                    accuracy: row[key + "Accuracy"]
-                };
+                const observation = row[key + "Observed"];
+                if (observation != null) {
+                    observations[timestamp] = row[key + "Observed"];
+                }
+                const { [key + "Predicted"]: prediction, [key + "Accuracy"]: accuracy } = row;
+                if (prediction != null && accuracy != null) {
+                    period.forecasts[timestamp] = {
+                        value: prediction,
+                        accuracy: accuracy
+                    };
+                }
                 j++;
             }
             periods.push(period);
