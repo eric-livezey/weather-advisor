@@ -201,9 +201,11 @@ body {
     .frames-container {
         width: 100%;
     }
+
     .details-container {
         flex-direction: column-reverse;
     }
+
     .chart-container,
     .selection-container {
         width: 100%;
@@ -335,6 +337,10 @@ body {
     visibility: hidden;
     opacity: 0;
     height: 0
+}
+
+.accordion__content>ul {
+    list-style-type: disc;
 }
 
 .is-open>.accordion__content {
