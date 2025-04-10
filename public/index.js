@@ -161,36 +161,47 @@ async function updateData() {
     }
 }
 
+/** @type {Chart} */
+let chart;
+
 function renderChart(labels, observedData, forecastData, stat) {
-    const context = document.getElementById("chart");
-    new Chart(context, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Observed " + stat,
-                    data: observedData,
-                    borderColor: "#DE3163",
-                    borderWidth: 2,
-                    fill: false
-                },
-                {
-                    label: "Forecasted " + stat,
-                    data: forecastData,
-                    borderColor: "#6495ED",
-                    borderWidth: 2,
-                    fill: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { title: { display: true, text: "Time" } },
-                y: { title: { display: true, text: stat }, max: stat === "Precipitation" ? 1 : undefined }
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: "Observed " + stat,
+                data: observedData,
+                borderColor: "#DE3163",
+                borderWidth: 2,
+                fill: false
+            },
+            {
+                label: "Forecasted " + stat,
+                data: forecastData,
+                borderColor: "#6495ED",
+                borderWidth: 2,
+                fill: false
             }
+        ]
+    };
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { title: { display: true, text: "Time" } },
+            y: { title: { display: true, text: stat }, max: stat === "Precipitation" ? 1 : undefined }
         }
-    });
+    };
+    if (chart) {
+        chart.data = data;
+        chart.options = options;
+        chart.update();
+    } else {
+        const context = document.getElementById("chart");
+        chart = new Chart(context, {
+            type: "line",
+            data,
+            options
+        });
+    }
 }
