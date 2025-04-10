@@ -15,6 +15,12 @@ const PROVIDERS = [
         name: "National Weather Service",
         siteName: "National Weather Service",
         url: "https://www.weather.gov/",
+        forecastUrl(lat, lng) {
+            const url = new URL("https://forecast.weather.gov/MapClick.php");
+            url.searchParams.set("lat", lat.toString());
+            url.searchParams.set("lon", lng.toString());
+            return url.toString();
+        },
         type: ForecastProviderType.NWS,
         getForecasts: async (lat, lng) => {
             let feature = await getPoint(lat, lng);
@@ -30,13 +36,15 @@ const PROVIDERS = [
         name: "IBM",
         siteName: "The Weather Channel",
         url: "https://weather.com/",
+        forecastUrl() { return this.url },
         type: ForecastProviderType.IBM,
         getForecasts: getForecastHourly2Day
     },
     {
         name: "msn",
         siteName: "msn",
-        url: "https://www.msn.com/",
+        url: "https://www.msn.com/en-us/weather/forecast",
+        forecastUrl() { return this.url },
         type: ForecastProviderType.MSN,
         getForecasts: getWeatherOverview
     },
@@ -44,6 +52,7 @@ const PROVIDERS = [
         name: "AccuWeather",
         siteName: "AccuWeather",
         url: "https://www.accuweather.com/",
+        forecastUrl() { return this.url },
         type: ForecastProviderType.ACCUWEATHER,
         getForecasts: getWeatherForecast
     },
@@ -51,6 +60,7 @@ const PROVIDERS = [
         name: "OpenWeatherMap",
         siteName: "OpenWeather",
         url: "https://openweathermap.org/",
+        forecastUrl() { return this.url },
         type: ForecastProviderType.OPEN_WEATHER_MAP,
         getForecasts: getHourlyForecastData
     }
@@ -108,10 +118,12 @@ async function getProviderSummaries(locationId) {
             { label: "Wind Speed", value: row.windSpeed !== null ? `±${row.windSpeed} MPH` : "N/A" },
             { label: "Humidity", value: row.humidity !== null ? `±${row.humidity}%` : "N/A" }
         ];
+        // get longitude/latitude
+        const { results: [{ coordinates: { x: lat, y: lng } }] } = await query(conn, format("SELECT coordinates FROM locations WHERE id=?", [locationId]));
         result.push({
             id: provider.type,
             name: provider.siteName,
-            url: provider.url,
+            url: provider.forecastUrl(lat, lng),
             summary
         });
     }
@@ -160,7 +172,6 @@ async function getAccuracyData(provider, locationId) {
         rows.push(...results);
         page++;
     }
-    // const { results: rows } = await query(conn, sql);
     conn.end();
     // format data
     const result = [
