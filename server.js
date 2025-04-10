@@ -4,7 +4,7 @@ import { getAccuracyData, getLocation, getProviderSummaries, initiateCollection 
 initiateCollection();
 
 const app = express();
-const port = 3000;
+const port = 8080;
 
 app.disable("x-powered-by");
 app.use(express.static("public"));
@@ -49,11 +49,7 @@ app.get("/api/forecast/accuracy", async (req, res) => {
         const { provider, location } = req.query;
         try {
             const data = await getAccuracyData(provider, location);
-            res.json({
-                id: provider,
-                location: location,
-                data
-            });
+            res.json(data);
         }
         catch (e) {
             // something went wrong

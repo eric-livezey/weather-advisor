@@ -77,12 +77,24 @@ function back() {
     frameContainer.classList.remove("hide");
 }
 
+/** @type {{data:{label:string;since:string|null;observations:{[timestamp:string]:number};periods:{hour:number;forecasts:{[timestamp:string]:{value:number;accuracy:number}}}[]}[]}} */
 let data;
 
-/**
- * 
- * @param {MouseEvent} event 
- */
+/** @param {number} days @param {number} interval @param {Date} [since] */
+function generateTimestamps(days, interval, since) {
+    const date = since || new Date();
+    date.setMinutes(0, 0, 0);
+    const target = new Date(date.getTime());
+    date.setDate(date.getDate() - days);
+    const timestamps = [];
+    while (date <= target) {
+        date.setHours(date.getHours() + interval);
+        timestamps.push(date.toISOString());
+    }
+    return timestamps;
+}
+
+/** @param {MouseEvent} event */
 async function handleFrameClick(event) {
     const frame = event.currentTarget;
     frameContainer.classList.add("hide");
@@ -93,6 +105,7 @@ async function handleFrameClick(event) {
     resultsFrame.innerHTML = `<a href="${url}">${name}</a>`;
     updateData()
 }
+
 async function updateData() {
     try {
         if (!data || !data.data) {
@@ -100,34 +113,34 @@ async function updateData() {
             return;
         }
         const selectedStat = statSelection.value;
-        const selectedHour = parseInt(hourSelection.value, 10);
+        const selectedHour = parseInt(hourSelection.value) || -3;
 
         const statData = data.data.find(entry => entry.label === selectedStat);
         if (!statData) {
             chartPlaceholder.innerHTML = "Selected statistic not found";
             return;
         }
+        hourSelection.innerHTML = statData.periods.map(period => `<option value="${period.hour}">${Math.abs(period.hour)}</option>`).join("");
+        hourSelection.value = selectedHour;
+        const { observations, periods, since } = statData;
+        const forecasts = periods.find(period => period.hour === selectedHour)?.forecasts;
 
-        const timestamps = [];
+        const timestamps = generateTimestamps(7, 3, since ? new Date(since) : undefined);
         const observedValues = [];
         const forecastedValues = [];
         let accuracySum = 0;
         let accuracyCount = 0;
-
-        for (entry of statData.data) {
-            const forecast = entry.forecasts.find(f => f.hour === selectedHour);
-            if (forecast) {
-                const timestamp = new Date(entry.timestamp).toLocaleString();
-                timestamps.push(timestamp);
-                observedValues.push(entry.observed);
-                forecastedValues.push(forecast.value);
-                if (forecast.accuracy != null) {
-                    accuracySum += forecast.accuracy;
-                    accuracyCount++;
-                }
+        // get forecast values
+        for (const timestamp of timestamps) {
+            observedValues.push(observations[timestamp]);
+            const forecast = forecasts?.[timestamp];
+            forecastedValues.push(forecast?.value);
+            if (forecast?.accuracy != null) {
+                accuracySum += forecast.accuracy;
+                accuracyCount++;
             }
         };
-
+        // calculate accuracy
         let accuracyText = "";
         if (accuracyCount > 0) {
             if (statData.prefix) {
@@ -141,8 +154,8 @@ async function updateData() {
             accuracyText = "N/A";
         }
         statAccuracy.innerText = accuracyText;
-
-        renderChart(timestamps, observedValues, forecastedValues, selectedStat);
+        // render chart
+        renderChart(timestamps.map(timestamp => new Date(timestamp).toLocaleString()), observedValues, forecastedValues, selectedStat);
     } catch (error) {
         console.error("Error in handleFrameClick:", error);
     }

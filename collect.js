@@ -160,7 +160,8 @@ async function getAccuracyData(provider, locationId) {
         "INNER JOIN observations ON locations.station_id=observations.station_id AND forecasts.timestamp=observations.timestamp"
     ].join(" ");
     const where = format("provider=? AND location=? AND hour%3=0 AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY)", [provider, locationId]);
-    const orderBy = "date, hour DESC";
+    const orderBy = "hour DESC, date";
+    /** @type {{date:Date;hour:number}[]}  */
     const rows = [];
     const limit = 10000;
     const conn = createConnection(MY_SQL_CONFIG);
@@ -174,30 +175,39 @@ async function getAccuracyData(provider, locationId) {
     }
     conn.end();
     // format data
-    const result = [
+    /** @type {{label:string;since:string|null;observations:{[timestamp:string]:number};periods:{hour:number;forecasts:{[timestamp:string]:{value:number;accuracy:number}}}[]}[]} */
+    const data = [
         {
             label: "Temperature",
-            data: [],
+            observations: {},
+            periods: [],
+            since: null,
             prefix: "±",
             suffix: "°F",
             key: "temperature"
         },
         {
             label: "Precipitation",
-            data: [],
+            observations: {},
+            periods: [],
+            since: null,
             suffix: "%",
             key: "precipitation"
         },
         {
             label: "Wind Speed",
-            data: [],
+            observations: {},
+            periods: [],
+            since: null,
             prefix: "±",
             suffix: " MPH",
             key: "windSpeed"
         },
         {
             label: "Humidity",
-            data: [],
+            observations: {},
+            periods: [],
+            since: null,
             prefix: "±",
             suffix: "%",
             key: "humidity"
@@ -208,33 +218,37 @@ async function getAccuracyData(provider, locationId) {
     let j;
     while (i < rows.length) {
         // iterate through each measurement
-        for (const { key, data } of result) {
-            // set timestamp and observed from the first row
-            const date = rows[i].date;
-            const timestamp = date.toISOString();
-            const observed = rows[i][key + "Observed"];
-            const forecasts = [];
-            // iterate through every forecast for the timestamp (query is ordered by timestamp so they will all be together)
+        for (const statistic of data) {
+            const { key, observations, periods, since } = statistic;
+            // set hour and observed from the first row
+            const hour = rows[i].hour;
+            /** @type {{hour:number;forecasts:{[timestamp:string]:{value:number;accuracy:number}}}} */
+            const period = { hour, forecasts: {} };
+            // iterate through every forecast for the hour (query is ordered by hour so they will all be together)
             j = i;
-            while (j < rows.length && rows[j].date.getTime() === date.getTime()) {
+            while (j < rows.length && rows[j].hour === hour) {
                 const row = rows[j];
-                forecasts.push({
-                    hour: row.hour,
+                const timestamp = row.date.toISOString();
+                if (since === null || row.date > since) {
+                    statistic.since = timestamp;
+                }
+                observations[timestamp] = row[key + "Observed"];
+                period.forecasts[timestamp] = {
                     value: row[key + "Predicted"],
                     accuracy: row[key + "Accuracy"]
-                });
+                };
                 j++;
             }
-            data.push({ timestamp, observed, forecasts });
+            periods.push(period);
         }
         // point i row after the last row with the same timestamp
         i = j;
     }
     // delete key from items (not wanted in response)
-    for (const item of result) {
+    for (const item of data) {
         delete item.key;
     }
-    return result;
+    return { provider, location: locationId, data: data };
 }
 
 // save missed stations on the disk so they are not lost when restarted
