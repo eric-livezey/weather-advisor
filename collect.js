@@ -234,10 +234,10 @@ async function getAccuracyData(provider, locationId) {
                 }
                 const observation = row[key + "Observed"];
                 if (observation != null) {
-                    observations[timestamp] = row[key + "Observed"];
+                    observations[timestamp] = observation;
                 }
                 const { [key + "Predicted"]: prediction, [key + "Accuracy"]: accuracy } = row;
-                if (prediction != null && accuracy != null) {
+                if (prediction != null || accuracy != null) {
                     period.forecasts[timestamp] = {
                         value: prediction,
                         accuracy: accuracy
