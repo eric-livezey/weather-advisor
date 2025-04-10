@@ -103,7 +103,8 @@ async function handleFrameClick(event) {
     const res = await fetch(`/api/forecast/accuracy?provider=${encodeURIComponent(provider)}&location=${encodeURIComponent(location)}`);
     data = await res.json();
     resultsFrame.innerHTML = `<a href="${url}">${name}</a>`;
-    updateData()
+    chart?.clear();
+    updateData();
 }
 
 async function updateData() {
@@ -113,15 +114,21 @@ async function updateData() {
             return;
         }
         const selectedStat = statSelection.value;
-        const selectedHour = parseInt(hourSelection.value) || -3;
+        let selectedHour = parseInt(hourSelection.value) || -3;
 
         const statData = data.data.find(entry => entry.label === selectedStat);
         if (!statData) {
-            chartPlaceholder.innerHTML = "Selected statistic not found";
+            console.error("Selected statistic not found");
             return;
         }
+        if (statData.periods.length == 0) {
+            console.error("No data");
+            return;
+        }
+        if (statData.periods.find(period => period.hour === selectedHour) === undefined) {
+            selectedHour = statData.periods[0]?.hour;
+        }
         hourSelection.innerHTML = statData.periods.map(period => `<option value="${period.hour}">${Math.abs(period.hour)}</option>`).join("");
-        hourSelection.value = selectedHour;
         const { observations, periods, since } = statData;
         const forecasts = periods.find(period => period.hour === selectedHour)?.forecasts;
 
@@ -161,8 +168,8 @@ async function updateData() {
     }
 }
 
-/** @type {Chart} */
-let chart;
+/** @type {?Chart} */
+let chart = null;
 
 function renderChart(labels, observedData, forecastData, stat) {
     const data = {
