@@ -80,16 +80,16 @@ function back() {
 /** @type {{data:{label:string;since:string|null;observations:{[timestamp:string]:number};periods:{hour:number;forecasts:{[timestamp:string]:{value:number;accuracy:number}}}[]}[]}} */
 let data;
 
-/** @param {number} days @param {number} interval @param {Date} [since] */
+/** @param {number} days @param {number} interval @param {Date} since */
 function generateTimestamps(days, interval, since) {
-    const date = since || new Date();
+    const date = since;
     date.setMinutes(0, 0, 0);
     const target = new Date(date.getTime());
     date.setDate(date.getDate() - days);
     const timestamps = [];
     while (date <= target) {
-        date.setHours(date.getHours() + interval);
         timestamps.push(date.toISOString());
+        date.setHours(date.getHours() + interval);
     }
     return timestamps;
 }
@@ -173,6 +173,7 @@ async function updateData() {
 let chart = null;
 
 function renderChart(labels, observedData, forecastData, stat) {
+    /** @type {Chart.ChartData} */
     const data = {
         labels: labels,
         datasets: [
@@ -192,6 +193,7 @@ function renderChart(labels, observedData, forecastData, stat) {
             }
         ]
     };
+    /** @type {Chart.ChartOptions} */
     const options = {
         responsive: true,
         maintainAspectRatio: false,

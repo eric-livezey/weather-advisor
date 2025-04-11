@@ -184,7 +184,7 @@ body {
 }
 
 .chart-container {
-    width: 35rem;
+    width: 45rem;
     height: 20rem;
 }
 
@@ -197,7 +197,7 @@ body {
     cursor: pointer;
 }
 
-@media(max-width: calc(52.75rem + 2px)) {
+@media(max-width: calc(62.75rem + 2px)) {
     .frames-container {
         width: 100%;
     }

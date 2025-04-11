@@ -159,7 +159,7 @@ async function getAccuracyData(provider, locationId) {
         "INNER JOIN locations ON forecasts.location=locations.id",
         "LEFT JOIN observations ON locations.station_id=observations.station_id AND forecasts.timestamp=observations.timestamp"
     ].join(" ");
-    const where = format("provider=? AND location=? AND hour%3=0 AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY)", [provider, locationId]);
+    const where = format("provider=? AND location=? AND hour%3=0 AND forecasts.timestamp>DATE_SUB(CURTIME(), INTERVAL 7 DAY) AND forecasts.timestamp<NOW()", [provider, locationId]);
     const orderBy = "hour DESC, date";
     /** @type {{date:Date;hour:number}[]}  */
     const rows = [];
@@ -291,8 +291,8 @@ async function collectObservations(conn, locations, date) {
         }
         const start = new Date(collectionDate.getTime() - 1);
         const end = new Date(collectionDate.getTime());
-        start.setHours(collectionDate.getHours() - 1);
-        end.setHours(collectionDate.getHours());
+        start.setHours(collectionDate.getHours() - 1, 0, 0, 0);
+        end.setHours(collectionDate.getHours(), 0, 0, 0);
         try {
             const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
             if (features.length > 0) {
@@ -312,8 +312,8 @@ async function collectObservations(conn, locations, date) {
         if (stationId && !collectedStations.has(stationId)) {
             const start = new Date(date.getTime());
             const end = new Date(date.getTime());
-            start.setHours(date.getHours() - 1);
-            end.setHours(date.getHours());
+            start.setHours(date.getHours() - 1, 0, 0, 0);
+            end.setHours(date.getHours(), 0, 0, 0);
             try {
                 const { features } = await getStationObservations(stationId, { start: start.toISOString(), end: end.toISOString() });
                 if (features.length > 0) {
