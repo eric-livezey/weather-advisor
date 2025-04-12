@@ -202,7 +202,9 @@ async function insertObservation(conn, data, date) {
     const station = data.station.substring(data.station.lastIndexOf("/") + 1);
     const timestamp = date;
     const temperature = data.temperature?.value == null ? null : celciusToFahrenheit(data.temperature.value);
-    const precipitation = data.precipitationLastHour?.value == null ? null : data.precipitationLastHour?.value ? 1 : 0;
+    // Observed precipitation is erroneously rounded down to 0 if the value is less than 0.5
+    // For now, it's actually more accurate to assume 0 means that is did rain since it's typically null when there was no rain
+    const precipitation = data.precipitationLastHour?.value == null ? 0 : 1;
     const humidity = data.relativeHumidity?.value == null ? null : data.relativeHumidity?.value;
     const windSpeed = data.windSpeed?.value == null ? null : kphToMph(data.windSpeed.value);
     const values = [station, timestamp, temperature, precipitation, humidity, windSpeed];
