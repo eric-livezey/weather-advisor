@@ -27,6 +27,7 @@ input.addEventListener("change", async event => {
             for (const service of result.services) {
                 const container = document.createElement("div");
                 container.classList.add("frame");
+                container.tabIndex = 0;
                 const header = document.createElement("h3");
                 container.dataset.name = service.name;
                 container.dataset.provider = service.id;
