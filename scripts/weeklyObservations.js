@@ -7,7 +7,7 @@ import { insertObservation, query } from "../database/database.js";
 const MY_SQL_CONFIG = {
     host: "localhost",
     user: "root",
-    password: "12345abcyeet8",
+    password: "PASSWORD",
     database: "weather_advisor"
 };
 
